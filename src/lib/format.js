@@ -26,7 +26,7 @@ export const GAME_TYPES = [
   { value: 'roulette', label: 'Roulette', icon: '🎡' },
   { value: 'blackjack', label: 'Blackjack', icon: '🃏' },
   { value: 'dice', label: 'Dice', icon: '🎲' },
-  { value: 'coinflip', label: 'Coin Flip', icon: '🪙' }
+  { value: 'coinflip', label: 'Coin Flip', icon: '💰' }
 ]
 
 export function gameTypeInfo(type) {

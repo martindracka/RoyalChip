@@ -8,6 +8,7 @@ defineProps({
 <template>
   <div class="auth">
     <div class="card">
+      <span class="badge" aria-hidden="true">🎰</span>
       <h1>{{ title }}</h1>
       <p v-if="subtitle" class="muted">{{ subtitle }}</p>
       <slot />
@@ -21,8 +22,25 @@ defineProps({
   place-items: center;
   padding: 2rem 0;
 }
+.auth {
+  background: radial-gradient(500px 300px at 50% 20%, rgb(139 92 246 / 0.18), transparent 70%);
+}
 .card {
-  width: min(440px, 100%);
+  width: min(460px, 100%);
+  padding: 2.25rem 2rem;
+  text-align: left;
+  border-color: var(--border-strong);
+}
+.badge {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  background: var(--gold-gradient);
+  box-shadow: var(--shadow-gold);
 }
 :slotted(form) {
   display: flex;

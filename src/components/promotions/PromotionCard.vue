@@ -13,7 +13,8 @@ defineEmits(['claim'])
 
 <template>
   <article class="promo card">
-    <p class="bonus">+{{ formatChips(promotion.bonusAmount) }} <span>chips</span></p>
+    <span class="ribbon" aria-hidden="true">🎁</span>
+    <p class="bonus"><span class="gold-text">+{{ formatChips(promotion.bonusAmount) }}</span> <span class="unit">chips</span></p>
     <h3>{{ promotion.title }}</h3>
     <p class="muted">{{ promotion.description }}</p>
     <p class="dates">Valid until {{ formatDate(promotion.endsAt) }}</p>
@@ -27,25 +28,44 @@ defineEmits(['claim'])
 
 <style scoped>
 .promo {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  background: linear-gradient(160deg, #1d4635, var(--surface));
-  border-color: #3d6e57;
+  background:
+    radial-gradient(400px 160px at 100% 0%, rgb(236 72 153 / 0.22), transparent 70%),
+    radial-gradient(300px 160px at 0% 0%, rgb(139 92 246 / 0.25), transparent 70%),
+    var(--surface);
+  border-color: var(--border-strong);
+  transition: transform 0.2s, border-color 0.2s;
+}
+.promo:hover {
+  transform: translateY(-4px);
+  border-color: rgb(242 185 56 / 0.6);
+}
+.ribbon {
+  position: absolute;
+  top: 1rem;
+  right: 1.1rem;
+  font-size: 2.2rem;
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.4));
 }
 .bonus {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--gold-strong);
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.1;
 }
-.bonus span {
+.unit {
   font-size: 1rem;
+  font-weight: 600;
   color: var(--text-muted);
 }
 h3 {
   margin: 0;
+  font-size: 1.3rem;
 }
 p {
   margin: 0;
@@ -53,7 +73,7 @@ p {
 .dates {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.9rem;
   flex: 1;
 }
 </style>

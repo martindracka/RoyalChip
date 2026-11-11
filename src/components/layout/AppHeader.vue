@@ -26,7 +26,7 @@ async function handleLogout() {
     <div class="container bar">
       <RouterLink to="/" class="logo" aria-label="Royal Chip Casino – home">
         <span class="logo-chip" aria-hidden="true">R</span>
-        <span>Royal Chip</span>
+        <span>Royal<span class="gold-text">Chip</span></span>
       </RouterLink>
 
       <button
@@ -41,14 +41,17 @@ async function handleLogout() {
 
       <nav id="main-nav" class="nav" :class="{ open: menuOpen }" aria-label="Main">
         <RouterLink to="/games">Games</RouterLink>
-        <RouterLink to="/promotions">Promotions</RouterLink>
+        <RouterLink to="/promotions">Promotions <span class="dot" aria-hidden="true"></span></RouterLink>
         <RouterLink v-if="auth.isLoggedIn" to="/leaderboard">Leaderboard</RouterLink>
         <RouterLink v-if="auth.isStaff" to="/admin" class="admin-link">Admin</RouterLink>
 
         <div class="user-area">
           <template v-if="auth.isLoggedIn">
             <BalanceChip />
-            <RouterLink to="/profile" class="profile-link">{{ auth.user.name || 'Profile' }}</RouterLink>
+            <RouterLink to="/profile" class="profile-link">
+              <span class="avatar" aria-hidden="true">{{ (auth.user.name || '?').charAt(0).toUpperCase() }}</span>
+              <span class="name">{{ auth.user.name || 'Profile' }}</span>
+            </RouterLink>
             <button type="button" class="link-btn" @click="handleLogout">Log out</button>
           </template>
           <template v-else>
@@ -66,52 +69,76 @@ async function handleLogout() {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgb(7 19 14 / 0.85);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
+  background: rgb(10 11 20 / 0.8);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgb(255 255 255 / 0.06);
 }
 .bar {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  min-height: 68px;
+  gap: 2rem;
+  min-height: 72px;
 }
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--text);
   text-decoration: none;
 }
 .logo-chip {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--gold);
-  color: var(--felt);
-  border: 3px dashed #fff;
+  background:
+    radial-gradient(circle, #1b1405 0 42%, transparent 43%),
+    repeating-conic-gradient(#f5b82e 0 30deg, #fff3cf 30deg 45deg);
+  color: var(--gold-strong);
+  font-size: 1rem;
+  box-shadow: 0 0 18px rgb(242 185 56 / 0.4);
 }
 .nav {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.25rem;
   flex: 1;
+}
+.nav > a {
+  position: relative;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
 }
 .nav a,
 .link-btn {
   color: var(--text-muted);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
+  transition: color 0.15s, background 0.15s;
 }
-.nav a:hover,
-.nav a.router-link-active,
+.nav > a:hover,
 .link-btn:hover {
   color: var(--text);
+  background: rgb(255 255 255 / 0.05);
+}
+.nav > a.router-link-active {
+  color: var(--text);
+  background: rgb(255 255 255 / 0.08);
+}
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 2px;
+  vertical-align: top;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 8px var(--pink);
 }
 .admin-link {
   color: var(--gold) !important;
@@ -120,20 +147,40 @@ async function handleLogout() {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.9rem;
+}
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text) !important;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet), var(--pink));
+  color: #fff;
+  font-weight: 700;
 }
 .link-btn {
   background: none;
   border: 0;
   cursor: pointer;
   font: inherit;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
 }
 .cta {
-  background: var(--gold);
-  color: #1a1200 !important;
-  padding: 0.45rem 1rem;
+  background: var(--gold-gradient);
+  color: #241600 !important;
+  padding: 0.55rem 1.2rem;
   border-radius: 999px;
   font-weight: 700 !important;
+  box-shadow: var(--shadow-gold);
 }
 .menu-toggle {
   display: none;
@@ -147,18 +194,18 @@ async function handleLogout() {
   cursor: pointer;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 960px) {
   .menu-toggle {
     display: block;
   }
   .nav {
     display: none;
     position: absolute;
-    top: 68px;
+    top: 72px;
     left: 0;
     right: 0;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     padding: 1rem;
     background: var(--bg-elevated);
     border-bottom: 1px solid var(--border);
@@ -168,6 +215,7 @@ async function handleLogout() {
   }
   .user-area {
     margin-left: 0;
+    margin-top: 0.5rem;
     flex-wrap: wrap;
   }
 }

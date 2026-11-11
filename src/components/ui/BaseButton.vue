@@ -28,6 +28,7 @@ defineProps({
 
 <style scoped>
 .btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -35,17 +36,20 @@ defineProps({
   border: 1px solid transparent;
   border-radius: 999px;
   font: inherit;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.1s, filter 0.15s, background 0.15s;
+  overflow: hidden;
+  transition: transform 0.12s, filter 0.15s, background 0.15s, box-shadow 0.2s, border-color 0.15s;
   white-space: nowrap;
 }
 .btn:hover:not(:disabled) {
-  filter: brightness(1.1);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 .btn:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.97);
 }
 .btn:disabled {
   opacity: 0.5;
@@ -63,16 +67,32 @@ defineProps({
   font-size: 1.1rem;
 }
 .primary {
-  background: linear-gradient(180deg, var(--gold-strong), var(--gold));
-  color: #1a1200;
+  background: var(--gold-gradient);
+  color: #241600;
+  box-shadow: var(--shadow-gold), inset 0 1px 0 rgb(255 255 255 / 0.5);
+}
+/* light sweep across the main call-to-action buttons */
+.primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgb(255 255 255 / 0.45) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.6s;
+}
+.primary:hover:not(:disabled)::after {
+  transform: translateX(120%);
 }
 .secondary {
   background: var(--surface-2);
-  border-color: var(--border);
+  border-color: var(--border-strong);
   color: var(--text);
 }
+.secondary:hover:not(:disabled) {
+  border-color: var(--gold);
+}
 .danger {
-  background: var(--red);
+  background: linear-gradient(135deg, #ff6b74, var(--red));
   color: #fff;
 }
 .ghost {

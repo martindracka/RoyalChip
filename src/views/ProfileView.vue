@@ -63,7 +63,7 @@ async function refill() {
     </header>
 
     <section class="stats">
-      <StatCard icon="🪙" label="Balance" :value="formatChips(profile.balance)" />
+      <StatCard icon="💰" label="Balance" :value="formatChips(profile.balance)" />
       <StatCard icon="🎯" label="Rounds played" :value="formatChips(profile.gamesPlayed)" />
       <StatCard icon="💸" label="Total wagered" :value="formatChips(profile.totalWagered)" />
       <StatCard icon="📈" label="Net result" :value="(net >= 0 ? '+' : '') + formatChips(net)" />
