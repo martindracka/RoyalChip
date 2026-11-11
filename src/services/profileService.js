@@ -1,5 +1,6 @@
 import { Query, Permission, Role } from 'appwrite'
 import { TABLES } from '@/lib/appwrite'
+import { FRIEND_BONUS, isValidReferralCode } from '@/lib/referral'
 import { listRows, getRow, createRow, updateRow, deleteRow } from './db'
 
 const T = TABLES.profiles
@@ -16,13 +17,16 @@ export async function getProfile(userId) {
   }
 }
 
-export function createProfile(user) {
+// referredBy = ID of the friend who invited this player (or null).
+// Invited players start with a small extra bonus.
+export function createProfile(user, referredBy = null) {
   const data = {
     username: user.name || user.email.split('@')[0],
-    balance: STARTING_BALANCE,
+    balance: STARTING_BALANCE + (referredBy ? FRIEND_BONUS : 0),
     totalWagered: 0,
     totalWon: 0,
-    gamesPlayed: 0
+    gamesPlayed: 0,
+    referredBy
   }
   // Row-level permission: only the owner may update this row.
   // Reading (leaderboard) and admin update/delete come from the TABLE permissions.
@@ -31,8 +35,26 @@ export function createProfile(user) {
   return createRow(T, user.$id, data, permissions)
 }
 
-export async function getOrCreateProfile(user) {
-  return (await getProfile(user.$id)) || createProfile(user)
+export async function getOrCreateProfile(user, { referredBy = null } = {}) {
+  const existing = await getProfile(user.$id)
+  if (existing) return existing
+  return createProfile(user, await checkReferrer(referredBy, user.$id))
+}
+
+// Only accept a referral code that belongs to another, existing player.
+async function checkReferrer(code, ownId) {
+  if (!isValidReferralCode(code) || code === ownId) return null
+  try {
+    return (await getProfile(code)) ? code : null
+  } catch {
+    return null // a broken link must never block registration
+  }
+}
+
+// Players who joined through my invite link.
+export async function listReferredFriends(userId) {
+  const { rows } = await listRows(T, [Query.equal('referredBy', userId), Query.orderDesc('$createdAt'), Query.limit(100)])
+  return rows
 }
 
 export function updateProfile(id, data) {

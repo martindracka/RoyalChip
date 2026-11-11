@@ -26,5 +26,6 @@ export const TABLES = {
   promotions: 'promotions',
   profiles: 'profiles',
   bets: 'bets',
-  claims: 'claims'
+  claims: 'claims',
+  referralRewards: 'referralRewards'
 }

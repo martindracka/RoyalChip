@@ -8,8 +8,9 @@ export const useProfileStore = defineStore('profile', () => {
 
   const balance = computed(() => profile.value?.balance ?? 0)
 
-  async function load(user) {
-    profile.value = user ? await getOrCreateProfile(user) : null
+  // options.referredBy is only used when a new profile is created (registration via invite link)
+  async function load(user, options) {
+    profile.value = user ? await getOrCreateProfile(user, options) : null
   }
 
   // Saves changes to Appwrite and keeps the local copy in sync with the server's answer.

@@ -3,6 +3,7 @@ import { validateStake } from '@/composables/useBet'
 import { summarizeBets } from '@/services/betService'
 import { getRole, can } from '@/lib/roles'
 import { required, email, minValue } from '@/composables/useForm'
+import { referralProgress, buildReferralLink, isValidReferralCode } from '@/lib/referral'
 
 const game = { minBet: 10, maxBet: 500 }
 
@@ -47,5 +48,27 @@ describe('form rules', () => {
     expect(email()('bad')).not.toBe('')
     expect(email()('a@b.cz')).toBe('')
     expect(minValue(1)(0)).not.toBe('')
+  })
+})
+
+describe('referral programme', () => {
+  it('tracks progress towards the wager target', () => {
+    expect(referralProgress(0, 500)).toEqual({ wagered: 0, percent: 0, remaining: 500, ready: false })
+    expect(referralProgress(250, 500)).toMatchObject({ percent: 50, remaining: 250, ready: false })
+    expect(referralProgress(500, 500)).toMatchObject({ percent: 100, remaining: 0, ready: true })
+  })
+  it('caps progress at 100 % and handles missing values', () => {
+    expect(referralProgress(2000, 500).percent).toBe(100)
+    expect(referralProgress(undefined, 500).wagered).toBe(0)
+  })
+  it('builds an invite link', () => {
+    expect(buildReferralLink('https://casino.app', 'abc123')).toBe('https://casino.app/register?ref=abc123')
+  })
+  it('accepts only Appwrite-like user IDs as codes', () => {
+    expect(isValidReferralCode('64f1a2b3c4d5e6')).toBe(true)
+    expect(isValidReferralCode('')).toBe(false)
+    expect(isValidReferralCode('<script>')).toBe(false)
+    expect(isValidReferralCode('a'.repeat(37))).toBe(false)
+    expect(isValidReferralCode(['array'])).toBe(false)
   })
 })

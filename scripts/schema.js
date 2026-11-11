@@ -84,11 +84,14 @@ export const TABLES = [
       { type: 'integer', key: 'balance', required: true, min: 0 },
       { type: 'integer', key: 'totalWagered', required: false, min: 0, xdefault: 0 },
       { type: 'integer', key: 'totalWon', required: false, min: 0, xdefault: 0 },
-      { type: 'integer', key: 'gamesPlayed', required: false, min: 0, xdefault: 0 }
+      { type: 'integer', key: 'gamesPlayed', required: false, min: 0, xdefault: 0 },
+      // ID of the player who invited this player (empty if they joined without a link)
+      { type: 'varchar', key: 'referredBy', size: 36, required: false }
     ],
     indexes: [
       { key: 'username_idx', type: 'key', columns: ['username'] },
-      { key: 'won_idx', type: 'key', columns: ['totalWon'] }
+      { key: 'won_idx', type: 'key', columns: ['totalWon'] },
+      { key: 'referred_by_idx', type: 'key', columns: ['referredBy'] }
     ]
   },
   {
@@ -127,6 +130,24 @@ export const TABLES = [
     indexes: [
       // UNIQUE: one claim per user and promotion – enforced by the database
       { key: 'user_promo_unique', type: 'unique', columns: ['userId', 'promotionId'] },
+      { key: 'user_idx', type: 'key', columns: ['userId'] }
+    ]
+  },
+  {
+    id: 'referralRewards',
+    name: 'Referral rewards',
+    // Created by the inviter when a friend has wagered enough. Same idea as claims.
+    rowSecurity: true,
+    permissions: [Permission.create(Role.users()), Permission.read(admin), Permission.delete(admin)],
+    columns: [
+      { type: 'varchar', key: 'userId', size: 36, required: true }, // the inviter
+      { type: 'varchar', key: 'referredId', size: 36, required: true }, // the friend
+      { type: 'varchar', key: 'referredName', size: 30, required: true },
+      { type: 'integer', key: 'amount', required: true, min: 0 }
+    ],
+    indexes: [
+      // UNIQUE: each friend can earn a reward only once – enforced by the database
+      { key: 'referred_unique', type: 'unique', columns: ['referredId'] },
       { key: 'user_idx', type: 'key', columns: ['userId'] }
     ]
   }

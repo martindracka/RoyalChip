@@ -6,6 +6,7 @@ import { listGames } from '@/services/gameService'
 import { listPromotions } from '@/services/promotionService'
 import { GAME_TYPES, formatChips } from '@/lib/format'
 import { STARTING_BALANCE } from '@/services/profileService'
+import { REFERRAL_REWARD } from '@/lib/referral'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import GameCard from '@/components/games/GameCard.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
@@ -103,6 +104,16 @@ const steps = [
         <span>Claim <b>{{ formatChips(topPromo.bonusAmount) }}</b> bonus chips now</span>
       </span>
       <span class="promo-cta">Claim bonus →</span>
+    </RouterLink>
+
+    <!-- INVITE FRIENDS -->
+    <RouterLink to="/invite" class="invite-banner">
+      <span class="invite-icon" aria-hidden="true">👥</span>
+      <span class="invite-text">
+        <strong>Invite friends, earn {{ formatChips(REFERRAL_REWARD) }} chips each</strong>
+        <span class="muted">Your friends get extra chips too. No limit on invites.</span>
+      </span>
+      <span class="invite-cta">Get your link →</span>
     </RouterLink>
 
     <!-- HOW IT WORKS -->
@@ -416,6 +427,49 @@ h1 {
   white-space: nowrap;
 }
 
+/* ---------- Invite banner ---------- */
+.invite-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: -2rem; /* sits close to the promo banner */
+  padding: 1.25rem 1.5rem;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.invite-banner:hover {
+  border-color: var(--pink);
+  transform: translateY(-2px);
+}
+.invite-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, var(--violet), var(--pink));
+}
+.invite-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.invite-text strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+.invite-cta {
+  color: var(--pink);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 /* ---------- Steps ---------- */
 .steps {
   list-style: none;
@@ -488,7 +542,8 @@ h1 {
   .steps {
     grid-template-columns: 1fr;
   }
-  .promo-banner {
+  .promo-banner,
+  .invite-banner {
     flex-direction: column;
     align-items: flex-start;
   }

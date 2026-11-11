@@ -94,12 +94,32 @@ The proper fix is an Appwrite Function that runs the game server-side. See READM
 
 ## 5. CRUD – where is each operation?
 
-| | Games | Promotions | Profiles | Bets | Claims |
-| --- | --- | --- | --- | --- | --- |
-| **Create** | Admin → New game (+ image upload) | Admin → New promotion | automatically on first login | every finished round | Claim button |
-| **Read** | lobby, game page, admin list | promotions page, admin list | header balance, leaderboard, admin players | profile history, admin bet log | promotions page (claimed state) |
-| **Update** | edit form, Publish/Hide | edit form | username on profile; admin edits balance; every round | – (not allowed) | – |
-| **Delete** | admin only (also deletes the image file) | admin only | admin only | admin only | – |
+| | Games | Promotions | Profiles | Bets | Claims | Referral rewards |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Create** | Admin → New game (+ image upload) | Admin → New promotion | automatically on first login (with `referredBy` from an invite link) | every finished round | Claim button | Claim button on *Invite friends* |
+| **Read** | lobby, game page, admin list | promotions page, admin list | header balance, leaderboard, admin players, my invited friends | profile history, admin bet log | promotions page (claimed state) | *Invite friends* (rewarded state) |
+| **Update** | edit form, Publish/Hide | edit form | username on profile; admin edits balance; every round | – (not allowed) | – | – |
+| **Delete** | admin only (also deletes the image file) | admin only | admin only | admin only | – | admin only |
+
+---
+
+## 5b. Invite friends (referral programme)
+
+Files: [src/lib/referral.js](../src/lib/referral.js) (rules), [src/composables/useReferrals.js](../src/composables/useReferrals.js),
+[src/views/ReferralsView.vue](../src/views/ReferralsView.vue), [src/services/referralService.js](../src/services/referralService.js).
+
+1. A player copies their link: `/register?ref=<their user ID>`.
+2. The friend registers. `RegisterView` reads `?ref` and passes it to `auth.register()` → `profileStore.load()` →
+   `getOrCreateProfile()`. The code is accepted only if it is a valid ID of **another existing** player.
+   The friend's profile gets `referredBy = inviter ID` and starts with 1,000 + 250 chips.
+3. The inviter's *Invite friends* page lists profiles with `referredBy = my ID` (`Query.equal`) and shows
+   a progress bar from the friend's `totalWagered`.
+4. At 500 wagered chips the inviter clicks *Claim*: a `referralRewards` row is created (unique index on
+   `referredId` → second claim fails with 409), then the inviter's balance goes up by 250.
+
+**Why not let the friend create a row for the inviter?** In Appwrite a user can only give row permissions to
+roles they have themselves, so the friend could not make a row readable by the inviter. Storing `referredBy`
+on the friend's profile works because profiles are readable by all logged-in users anyway (leaderboard).
 
 ---
 

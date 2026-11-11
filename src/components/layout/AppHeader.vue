@@ -42,6 +42,7 @@ async function handleLogout() {
       <nav id="main-nav" class="nav" :class="{ open: menuOpen }" aria-label="Main">
         <RouterLink to="/games">Games</RouterLink>
         <RouterLink to="/promotions">Promotions <span class="dot" aria-hidden="true"></span></RouterLink>
+        <RouterLink to="/invite">Invite friends</RouterLink>
         <RouterLink v-if="auth.isLoggedIn" to="/leaderboard">Leaderboard</RouterLink>
         <RouterLink v-if="auth.isStaff" to="/admin" class="admin-link">Admin</RouterLink>
 

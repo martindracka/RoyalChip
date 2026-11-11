@@ -18,6 +18,13 @@ export const routes = [
     meta: { title: 'Promotions' }
   },
   {
+    // Public on purpose: guests see how the programme works, players also get their link
+    path: '/invite',
+    name: 'invite',
+    component: () => import('@/views/ReferralsView.vue'),
+    meta: { title: 'Invite friends' }
+  },
+  {
     path: '/leaderboard',
     name: 'leaderboard',
     component: () => import('@/views/LeaderboardView.vue'),

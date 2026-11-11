@@ -18,9 +18,9 @@ export const useAuthStore = defineStore('auth', () => {
     return can(role.value, action)
   }
 
-  async function setUser(newUser) {
+  async function setUser(newUser, profileOptions) {
     user.value = newUser
-    await useProfileStore().load(newUser)
+    await useProfileStore().load(newUser, profileOptions)
   }
 
   // Called by the router guard before the first navigation.
@@ -41,8 +41,9 @@ export const useAuthStore = defineStore('auth', () => {
     await setUser(await authService.login(email, password))
   }
 
-  async function register(name, email, password) {
-    await setUser(await authService.register(name, email, password))
+  // referredBy = user ID from an invite link (?ref=...), optional
+  async function register(name, email, password, referredBy = null) {
+    await setUser(await authService.register(name, email, password), { referredBy })
   }
 
   async function logout() {

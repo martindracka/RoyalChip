@@ -21,6 +21,7 @@ promotions and players in a protected administration area.
 | Wallet | Balance stored in Appwrite, updated after every round |
 | Bet history | Every finished round is stored as an immutable `bets` row |
 | Promotions | Bonus chips that can be claimed **once** per account (enforced by a unique DB index) |
+| Invite friends | Personal invite link. A friend who joins gets **+250 chips**; once the friend has wagered **500 chips**, the inviter claims **250 chips** (once per friend, enforced by a unique DB index) |
 | Leaderboard | Top 10 players by total chips won |
 | Profile | Statistics, change username, refill balance when broke |
 
@@ -125,13 +126,14 @@ src/
 ├── lib/                    # small framework-free helpers
 │   ├── appwrite.js         # the ONLY place the Appwrite SDK is configured
 │   ├── roles.js            # role names + permission table used by the UI
+│   ├── referral.js         # invite-friends rules (reward, target, link) – unit tested
 │   ├── errors.js           # Appwrite error -> human readable message
 │   └── format.js, sleep.js
 ├── services/               # DATA ACCESS – every Appwrite call lives here
 │   ├── db.js               # generic list/get/create/update/delete wrapper
 │   ├── authService.js      # login, register, logout, current user
 │   ├── gameService.js, promotionService.js, profileService.js,
-│   ├── betService.js, claimService.js, storageService.js
+│   ├── betService.js, claimService.js, referralService.js, storageService.js
 ├── stores/                 # GLOBAL STATE (Pinia)
 │   ├── auth.js             # user, role, login/logout, init()
 │   └── profile.js          # balance + statistics of the logged-in player
@@ -139,6 +141,7 @@ src/
 │   ├── useAsync.js         # loading / error / data for any async call
 │   ├── useBet.js           # shared betting flow for all games
 │   ├── usePromotionClaims.js
+│   ├── useReferrals.js     # invite-friends page: friends, progress, claiming rewards
 │   ├── useForm.js          # form state + validation rules
 │   ├── useToast.js, useConfirm.js
 ├── games/                  # PURE GAME LOGIC (no Vue, fully unit tested)
@@ -149,7 +152,7 @@ src/
 │   ├── layout/             # AppHeader, AppFooter, BalanceChip, AuthCard, SetupNotice
 │   ├── games/              # GameCard, BetInput, RoundResult, PlayingCard + one component per game
 │   ├── admin/              # GameForm, PromotionForm, PlayerRow
-│   ├── promotions/, profile/
+│   ├── promotions/, profile/, referrals/
 └── views/                  # PAGES (one per route)
     ├── HomeView, GamesView, GameView, PromotionsView, LeaderboardView, ProfileView,
     ├── LoginView, RegisterView, ForbiddenView, NotFoundView
@@ -177,6 +180,8 @@ docs/                       # architecture notes, exam notes, AI usage
 ```
 games (1) ──< bets >── (1) profiles (= Appwrite user)
 promotions (1) ──< claims >── (1) profiles
+profiles (1) ──< profiles.referredBy        (who invited whom)
+profiles (1) ──< referralRewards >── (1) profiles (the friend)
 games.imageId ──> Storage bucket "game-images"
 ```
 
@@ -184,9 +189,10 @@ games.imageId ──> Storage bucket "game-images"
 | --- | --- | --- |
 | `games` | name, type (enum), description, minBet, maxBet, isActive, imageId | `imageId` references a file in Storage |
 | `promotions` | title, description, bonusAmount, startsAt, endsAt, isActive | |
-| `profiles` | username, balance (min 0), totalWagered, totalWon, gamesPlayed | **row ID = Appwrite user ID** (1:1 with the account) |
+| `profiles` | username, balance (min 0), totalWagered, totalWon, gamesPlayed, referredBy | **row ID = Appwrite user ID** (1:1 with the account); `referredBy` = ID of the inviter |
 | `bets` | userId, username, gameId, gameName, gameType, amount, payout, outcome | `$createdAt` is the time of the round |
 | `claims` | userId, promotionId, amount | **unique index** on (userId, promotionId) |
+| `referralRewards` | userId (inviter), referredId (friend), referredName, amount | **unique index** on referredId → one reward per friend |
 
 **Why references by ID and some copied fields?** `bets` stores `gameName` and `username` next to the IDs.
 A bet is a historical record – if a game is renamed or deleted later, the history must still show what was
@@ -211,13 +217,15 @@ The same labels are used in **three layers**:
 | games, promotions | read | read | read, create, update | everything |
 | profiles | – | read all, create own, **update only own row** | same as player | read, update, delete all |
 | bets | – | create, **read only own rows** | same as player | read all, delete |
-| claims | – | create, read own | same as player | read all, delete |
+| claims, referralRewards | – | create, read own | same as player | read all, delete |
 | Storage `game-images` | read | read | upload/replace/delete | everything |
 
 Extra safety in the database itself:
 - `profiles.balance` has `min: 0` → a negative balance is rejected by Appwrite.
 - Players have no update/delete permission on `bets` → history can't be changed.
 - Unique index on `claims` → a promotion can't be claimed twice, even with two quick clicks.
+- Unique index on `referralRewards.referredId` → the reward for a friend can't be claimed twice.
+- An invite code is only accepted if it belongs to another existing player (no self-invites).
 - Rows are created with explicit permissions. Without them, Appwrite would give the creator full
   read/update/delete rights by default.
 
@@ -226,7 +234,9 @@ The games run in the browser and the player's own profile row is updatable by th
 (needed to change the balance). A technically skilled user could therefore send a manual API request that
 sets their own *play-money* balance. For a real-money casino the fix would be:
 **move the game logic into an Appwrite Function** that runs with an API key, decides the result on the server
-and updates the balance – and remove the `update` permission from players. This was kept out of scope to keep
+and updates the balance – and remove the `update` permission from players. The same applies to the
+invite-friends programme: today the browser checks the friend's progress and adds the reward; a Function
+would do this check on the server. This was kept out of scope to keep
 the project understandable; the data access is already isolated in `services/` and `useBet.js`, so only those
 files would change.
 
@@ -248,4 +258,5 @@ and there is a skip link, visible focus styles and `prefers-reduced-motion` supp
 npm test
 ```
 Covers: slot payouts, roulette bets, blackjack hand values and results, dice odds, payout rounding,
-bet validation, bet statistics, role → permission mapping and form validation rules.
+bet validation, bet statistics, role → permission mapping, form validation rules, the invite-friends
+rules, and creating a profile from an invite link (with the Appwrite layer replaced by `vi.mock`).

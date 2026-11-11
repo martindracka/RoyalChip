@@ -9,6 +9,7 @@
         <p class="heading">Play</p>
         <RouterLink to="/games">All games</RouterLink>
         <RouterLink to="/promotions">Promotions</RouterLink>
+        <RouterLink to="/invite">Invite friends</RouterLink>
         <RouterLink to="/leaderboard">Leaderboard</RouterLink>
       </nav>
       <div class="links">
