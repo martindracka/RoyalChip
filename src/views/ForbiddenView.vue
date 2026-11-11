@@ -4,7 +4,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 </script>
 
 <template>
-  <EmptyState icon="⛔" title="No access" message="Your account does not have permission to open this page.">
+  <EmptyState icon="ban" title="No access" message="Your account does not have permission to open this page.">
     <BaseButton to="/">Back to the lobby</BaseButton>
   </EmptyState>
 </template>

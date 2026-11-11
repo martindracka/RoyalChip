@@ -80,7 +80,7 @@ async function remove(player) {
 
     <LoadingState v-if="loading" />
     <ErrorState v-else-if="error" :message="error" @retry="run" />
-    <EmptyState v-else-if="!players.length" icon="👥" title="No players found" />
+    <EmptyState v-else-if="!players.length" icon="users" title="No players found" />
     <div v-else class="table-wrap">
       <table>
         <thead>

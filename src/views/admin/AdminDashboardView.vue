@@ -48,14 +48,14 @@ const { data: stats, loading, error, run } = useAsync(loadStats)
     <ErrorState v-else-if="error" :message="error" @retry="run" />
     <template v-else-if="stats">
       <div class="stats">
-        <StatCard icon="🎰" label="Games (active / total)" :value="`${stats.activeGames} / ${stats.games}`" />
-        <StatCard icon="🎁" label="Promotions" :value="stats.promotions" />
+        <StatCard icon="gamepad" label="Games (active / total)" :value="`${stats.activeGames} / ${stats.games}`" />
+        <StatCard icon="gift" label="Promotions" :value="stats.promotions" />
         <template v-if="stats.bets">
-          <StatCard icon="👥" label="Players" :value="stats.players" />
-          <StatCard icon="🎲" label="Rounds (last 500)" :value="formatChips(stats.bets.count)" />
-          <StatCard icon="💸" label="Chips wagered" :value="formatChips(stats.bets.wagered)" />
-          <StatCard icon="🏦" label="House profit" :value="formatChips(stats.bets.houseProfit)" />
-          <StatCard icon="📈" label="Player win rate" :value="`${stats.bets.winRate}%`" />
+          <StatCard icon="users" label="Players" :value="stats.players" />
+          <StatCard icon="dices" label="Rounds (last 500)" :value="formatChips(stats.bets.count)" />
+          <StatCard icon="banknote" label="Chips wagered" :value="formatChips(stats.bets.wagered)" />
+          <StatCard icon="landmark" label="House profit" :value="formatChips(stats.bets.houseProfit)" />
+          <StatCard icon="trending" label="Player win rate" :value="`${stats.bets.winRate}%`" />
         </template>
       </div>
       <p v-if="!stats.bets" class="muted note">

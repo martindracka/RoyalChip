@@ -5,6 +5,7 @@ import { useProfileStore } from '@/stores/profile'
 import { SYMBOLS, spinReels, randomSymbol, slotsMultiplier } from '@/games/slots'
 import { calcPayout } from '@/games/payout'
 import BetInput from './BetInput.vue'
+import SlotSymbol from './SlotSymbol.vue'
 import RoundResult from './RoundResult.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
@@ -15,7 +16,7 @@ const { amount, stake, busy, inRound, canBet, validationError, lastResult, start
   () => props.game
 )
 
-const reels = ref(['🍒', '🔔', '💎'])
+const reels = ref(['cherry', 'bell', 'gem'])
 const spinning = ref([false, false, false])
 
 // Each reel shows random symbols for a while and then stops on its final symbol.
@@ -46,7 +47,7 @@ async function spin() {
     <section class="game-stage slots-stage" aria-label="Slot machine">
       <div class="machine">
         <div v-for="(symbol, i) in reels" :key="i" class="reel" :class="{ spinning: spinning[i] }">
-          <span :aria-label="`Reel ${i + 1}: ${symbol}`">{{ symbol }}</span>
+          <span :aria-label="`Reel ${i + 1}: ${symbol}`"><SlotSymbol :symbol="symbol" :size="72" /></span>
         </div>
       </div>
       <RoundResult :result="lastResult" />
@@ -68,9 +69,12 @@ async function spin() {
       <h3>Paytable</h3>
       <ul class="paytable">
         <li v-for="s in SYMBOLS" :key="s.icon">
-          <span>{{ s.icon }} {{ s.icon }} {{ s.icon }}</span><strong>{{ s.multiplier }}×</strong>
+          <span class="combo"><SlotSymbol v-for="n in 3" :key="n" :symbol="s.icon" :size="20" /></span><strong>{{ s.multiplier }}×</strong>
         </li>
-        <li><span>🍒 🍒 (any two)</span><strong>2×</strong></li>
+        <li>
+          <span class="combo"><SlotSymbol v-for="n in 2" :key="n" symbol="cherry" :size="20" /> <small class="muted">any two</small></span
+          ><strong>2×</strong>
+        </li>
       </ul>
     </aside>
   </div>
@@ -113,8 +117,14 @@ async function spin() {
   margin: 0;
   font-size: 0.95rem;
 }
+.combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
 .paytable li {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   padding: 0.3rem 0;
   border-bottom: 1px dashed var(--border);

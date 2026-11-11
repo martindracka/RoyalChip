@@ -3,20 +3,23 @@ import { useAuthStore } from '@/stores/auth'
 import { REFERRAL_REWARD, FRIEND_BONUS, WAGER_TARGET } from '@/lib/referral'
 import { formatChips } from '@/lib/format'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import { photoUrl, photoSrcset } from '@/lib/images'
 import ReferralDashboard from '@/components/referrals/ReferralDashboard.vue'
 
 const auth = useAuthStore()
 
 const steps = [
-  { icon: '🔗', title: 'Share your link', text: 'Copy your personal invite link and send it to friends.' },
-  { icon: '🎉', title: 'Your friend joins', text: `They get ${formatChips(FRIEND_BONUS)} extra chips on top of the welcome chips.` },
-  { icon: '💰', title: 'You get paid', text: `Once your friend wagers ${formatChips(WAGER_TARGET)} chips, claim ${formatChips(REFERRAL_REWARD)} chips.` }
+  { icon: 'link', title: 'Share your link', text: 'Copy your personal invite link and send it to friends.' },
+  { icon: 'user-plus', title: 'Your friend joins', text: `They get ${formatChips(FRIEND_BONUS)} extra chips on top of the welcome chips.` },
+  { icon: 'coins', title: 'You get paid', text: `Once your friend wagers ${formatChips(WAGER_TARGET)} chips, claim ${formatChips(REFERRAL_REWARD)} chips.` }
 ]
 </script>
 
 <template>
   <div class="referrals">
     <section class="hero">
+      <img class="hero-bg" :src="photoUrl('chips', 1600)" :srcset="photoSrcset('chips')" sizes="100vw" alt="" />
       <div>
         <p class="eyebrow">Invite friends</p>
         <h1>
@@ -30,9 +33,9 @@ const steps = [
         <BaseButton v-if="!auth.isLoggedIn" to="/register" size="lg">Create account to get your link</BaseButton>
       </div>
       <div class="hero-art" aria-hidden="true">
-        <span class="bubble b1">😎</span>
+        <span class="bubble b1"><AppIcon name="user-plus" :size="30" /></span>
         <span class="plus">+</span>
-        <span class="bubble b2">👥</span>
+        <span class="bubble b2"><AppIcon name="users" :size="30" /></span>
         <span class="equals">=</span>
         <span class="reward gold-text">+{{ formatChips(REFERRAL_REWARD) }}</span>
       </div>
@@ -40,7 +43,7 @@ const steps = [
 
     <ol class="steps">
       <li v-for="(step, i) in steps" :key="step.title" class="step">
-        <span class="step-icon" aria-hidden="true">{{ step.icon }}</span>
+        <span class="step-icon" aria-hidden="true"><AppIcon :name="step.icon" :size="22" /></span>
         <div>
           <h3><span class="num">{{ i + 1 }}.</span> {{ step.title }}</h3>
           <p class="muted">{{ step.text }}</p>
@@ -66,14 +69,29 @@ const steps = [
   padding: 2rem;
   border-radius: 24px;
   border: 1px solid var(--border-strong);
-  background:
-    radial-gradient(500px 250px at 100% 0%, rgb(236 72 153 / 0.25), transparent 70%),
-    radial-gradient(500px 250px at 0% 100%, rgb(139 92 246 / 0.25), transparent 70%),
-    var(--surface);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 3rem 2.5rem;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgb(10 11 20 / 0.95) 35%, rgb(10 11 20 / 0.55));
 }
 .eyebrow {
   margin: 0 0 0.75rem;
-  color: var(--pink);
+  color: var(--gold);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -103,9 +121,10 @@ h1 {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  font-size: 2.2rem;
-  background: rgb(255 255 255 / 0.08);
-  border: 1px solid rgb(255 255 255 / 0.15);
+  color: var(--gold);
+  background: rgb(10 11 20 / 0.6);
+  border: 1px solid rgb(242 185 56 / 0.4);
+  backdrop-filter: blur(8px);
   animation: bob 3s ease-in-out infinite;
 }
 .b2 {
@@ -144,7 +163,15 @@ h1 {
   border: 1px solid var(--border);
 }
 .step-icon {
-  font-size: 1.8rem;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  color: var(--gold);
+  background: rgb(242 185 56 / 0.1);
+  border: 1px solid rgb(242 185 56 / 0.3);
 }
 .step h3 {
   font-size: 1.05rem;

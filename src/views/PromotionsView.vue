@@ -29,7 +29,7 @@ onMounted(loadClaims)
 
     <LoadingState v-if="loading" />
     <ErrorState v-else-if="error" :message="error" @retry="run" />
-    <EmptyState v-else-if="!promotions.length" icon="🎁" title="No promotions right now" message="Check back soon!" />
+    <EmptyState v-else-if="!promotions.length" icon="gift" title="No promotions right now" message="Check back soon!" />
     <div v-else class="grid">
       <PromotionCard
         v-for="promo in promotions"

@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAsync } from '@/composables/useAsync'
@@ -52,7 +53,7 @@ watch([type, search], () => {
         :aria-pressed="type === t.value"
         @click="type = t.value"
       >
-        <span aria-hidden="true">{{ t.icon }}</span> {{ t.label }}
+        <AppIcon :name="t.icon" :size="16" /> {{ t.label }}
       </button>
     </div>
 
@@ -60,7 +61,7 @@ watch([type, search], () => {
     <ErrorState v-else-if="error" :message="error" @retry="run" />
     <EmptyState
       v-else-if="!games.length"
-      icon="🔍"
+      icon="search"
       title="No games found"
       message="Try a different search or game type."
     />
@@ -87,6 +88,9 @@ watch([type, search], () => {
   margin-bottom: 1.5rem;
 }
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font: inherit;
   font-weight: 600;
   font-size: 0.92rem;

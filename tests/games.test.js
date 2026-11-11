@@ -20,14 +20,14 @@ describe('rng', () => {
 
 describe('slots', () => {
   it('pays the symbol multiplier for three of a kind', () => {
-    expect(slotsMultiplier(['💎', '💎', '💎'])).toBe(50)
-    expect(slotsMultiplier(['7️⃣', '7️⃣', '7️⃣'])).toBe(100)
+    expect(slotsMultiplier(['gem', 'gem', 'gem'])).toBe(50)
+    expect(slotsMultiplier(['seven', 'seven', 'seven'])).toBe(100)
   })
   it('pays 2x for two cherries', () => {
-    expect(slotsMultiplier(['🍒', '🔔', '🍒'])).toBe(2)
+    expect(slotsMultiplier(['cherry', 'bell', 'cherry'])).toBe(2)
   })
   it('pays nothing otherwise', () => {
-    expect(slotsMultiplier(['🍒', '🔔', '⭐'])).toBe(0)
+    expect(slotsMultiplier(['cherry', 'bell', 'star'])).toBe(0)
   })
   it('picks symbols by weight', () => {
     expect(randomSymbol(() => 0)).toBe(SYMBOLS[0].icon)

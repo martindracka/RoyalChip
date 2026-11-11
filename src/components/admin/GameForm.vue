@@ -83,7 +83,7 @@ const submit = () =>
       <FormField id="type" label="Game type" :error="errors.type">
         <template #default="{ describedby }">
           <select id="type" v-model="values.type" :aria-describedby="describedby">
-            <option v-for="t in GAME_TYPES" :key="t.value" :value="t.value">{{ t.icon }} {{ t.label }}</option>
+            <option v-for="t in GAME_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
           </select>
         </template>
       </FormField>

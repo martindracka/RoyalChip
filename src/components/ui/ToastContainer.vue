@@ -1,8 +1,9 @@
 <script setup>
 import { useToast } from '@/composables/useToast'
+import AppIcon from './AppIcon.vue'
 
 const { toasts, dismiss } = useToast()
-const icons = { success: '✅', error: '⛔', info: 'ℹ️' }
+const icons = { success: 'circle-check', error: 'ban', info: 'info' }
 </script>
 
 <template>
@@ -15,9 +16,9 @@ const icons = { success: '✅', error: '⛔', info: 'ℹ️' }
         :class="t.type"
         :role="t.type === 'error' ? 'alert' : 'status'"
       >
-        <span aria-hidden="true">{{ icons[t.type] }}</span>
+        <AppIcon :name="icons[t.type]" class="t-icon" />
         <span class="msg">{{ t.message }}</span>
-        <button type="button" aria-label="Close notification" @click="dismiss(t.id)">×</button>
+        <button type="button" aria-label="Close notification" @click="dismiss(t.id)"><AppIcon name="x" :size="18" /></button>
       </div>
     </TransitionGroup>
   </div>
@@ -49,6 +50,15 @@ const icons = { success: '✅', error: '⛔', info: 'ℹ️' }
 }
 .toast.error {
   border-left-color: var(--red);
+}
+.t-icon {
+  color: var(--blue);
+}
+.success .t-icon {
+  color: var(--green);
+}
+.error .t-icon {
+  color: var(--red);
 }
 .msg {
   flex: 1;

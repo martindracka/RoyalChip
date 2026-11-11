@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -54,7 +55,7 @@ const submit = () =>
 <template>
   <AuthCard title="Create account" :subtitle="`Get ${formatChips(startChips)} free chips to start.`">
     <p v-if="referralCode" class="invite-note">
-      🎉 You were invited by a friend – you get <strong>{{ formatChips(FRIEND_BONUS) }} extra chips</strong>!
+      <AppIcon name="party" :size="18" /> You were invited by a friend – you get <strong>{{ formatChips(FRIEND_BONUS) }} extra chips</strong>!
     </p>
     <form novalidate @submit.prevent="submit">
       <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
@@ -93,6 +94,9 @@ const submit = () =>
 
 <style scoped>
 .invite-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin: 1rem 0 0;
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);

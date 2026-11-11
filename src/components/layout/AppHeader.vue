@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import BalanceChip from './BalanceChip.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -36,7 +37,7 @@ async function handleLogout() {
         aria-controls="main-nav"
         @click="menuOpen = !menuOpen"
       >
-        <span class="sr-only">Toggle menu</span>☰
+        <span class="sr-only">Toggle menu</span><AppIcon :name="menuOpen ? 'x' : 'menu'" :size="22" />
       </button>
 
       <nav id="main-nav" class="nav" :class="{ open: menuOpen }" aria-label="Main">
@@ -191,13 +192,14 @@ async function handleLogout() {
   color: var(--text);
   border-radius: var(--radius-sm);
   font-size: 1.3rem;
-  padding: 0.2rem 0.7rem;
+  padding: 0.4rem;
   cursor: pointer;
 }
 
 @media (max-width: 960px) {
   .menu-toggle {
-    display: block;
+    display: grid;
+    place-items: center;
   }
   .nav {
     display: none;

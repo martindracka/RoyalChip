@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import { getImageUrl } from '@/services/storageService'
 import { gameTypeInfo, formatChips } from '@/lib/format'
+import { photoUrl, gamePhotoKey } from '@/lib/images'
+import AppIcon from '@/components/ui/AppIcon.vue'
 
 const props = defineProps({
   game: { type: Object, required: true },
@@ -10,6 +12,8 @@ const props = defineProps({
 
 const typeInfo = computed(() => gameTypeInfo(props.game.type))
 const imageUrl = computed(() => getImageUrl(props.game.imageId))
+// Without an uploaded cover we show a high-resolution stock photo for the game type.
+const photoKey = computed(() => gamePhotoKey(props.game.type))
 </script>
 
 <template>
@@ -17,9 +21,17 @@ const imageUrl = computed(() => getImageUrl(props.game.imageId))
     <RouterLink :to="{ name: 'game', params: { id: game.$id } }" class="link">
       <div class="cover" :class="game.type">
         <img v-if="imageUrl" :src="imageUrl" :alt="`${game.name} cover`" loading="lazy" />
-        <span v-else class="icon" aria-hidden="true">{{ typeInfo.icon }}</span>
-        <span v-if="badge" class="badge">🔥 {{ badge }}</span>
-        <span class="play" aria-hidden="true"><span class="play-btn">▶ Play now</span></span>
+        <img
+          v-else
+          :src="photoUrl(photoKey, 800)"
+          :srcset="`${photoUrl(photoKey, 800)} 800w, ${photoUrl(photoKey, 1600)} 1600w`"
+          sizes="(max-width: 640px) 100vw, 400px"
+          alt=""
+          loading="lazy"
+        />
+        <span class="type-chip"><AppIcon :name="typeInfo.icon" :size="14" /> {{ typeInfo.label }}</span>
+        <span v-if="badge" class="badge"><AppIcon name="flame" :size="13" /> {{ badge }}</span>
+        <span class="play" aria-hidden="true"><span class="play-btn"><AppIcon name="play" :size="16" /> Play now</span></span>
       </div>
       <div class="body">
         <p class="type">{{ typeInfo.label }}</p>
@@ -72,32 +84,45 @@ const imageUrl = computed(() => getImageUrl(props.game.imageId))
 .cover.coinflip {
   background: radial-gradient(circle at 30% 20%, #f59e0b, #3d1a02 75%);
 }
-/* subtle pattern on top of the gradient */
-.cover::before {
-  content: '';
+.cover img {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgb(255 255 255 / 0.12) 1px, transparent 1px);
-  background-size: 16px 16px;
-  mask-image: linear-gradient(180deg, #000, transparent);
-}
-.cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.4s;
 }
-.icon {
-  position: relative;
-  font-size: 4.5rem;
-  filter: drop-shadow(0 10px 16px rgb(0 0 0 / 0.5));
-  transition: transform 0.35s;
+.cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgb(10 11 20 / 0.75), transparent 55%);
 }
-.game-card:hover .icon,
 .game-card:hover .cover img {
-  transform: scale(1.12) rotate(-4deg);
+  transform: scale(1.08);
+}
+.type-chip {
+  position: absolute;
+  z-index: 1;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgb(10 11 20 / 0.6);
+  border: 1px solid rgb(255 255 255 / 0.15);
+  backdrop-filter: blur(6px);
 }
 .badge {
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   position: absolute;
   top: 0.75rem;
   left: 0.75rem;
@@ -111,6 +136,7 @@ const imageUrl = computed(() => getImageUrl(props.game.imageId))
   border-radius: 999px;
 }
 .play {
+  z-index: 2;
   position: absolute;
   inset: 0;
   display: grid;
@@ -120,6 +146,9 @@ const imageUrl = computed(() => getImageUrl(props.game.imageId))
   transition: opacity 0.25s;
 }
 .play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   background: var(--gold-gradient);
   color: #241600;
   font-weight: 800;
@@ -135,6 +164,9 @@ const imageUrl = computed(() => getImageUrl(props.game.imageId))
 }
 .game-card:hover .play-btn,
 .game-card:focus-within .play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   transform: translateY(0);
 }
 .body {

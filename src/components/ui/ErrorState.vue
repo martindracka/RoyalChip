@@ -1,11 +1,13 @@
 <script setup>
+import AppIcon from './AppIcon.vue'
+
 defineProps({ message: { type: String, required: true } })
 defineEmits(['retry'])
 </script>
 
 <template>
   <div class="error-box" role="alert">
-    <span aria-hidden="true">⚠️</span>
+    <AppIcon name="warning" :size="24" class="warn" />
     <div>
       <strong>Something went wrong</strong>
       <p>{{ message }}</p>
@@ -23,6 +25,9 @@ defineEmits(['retry'])
   border: 1px solid var(--red);
   background: rgb(229 72 77 / 0.1);
   border-radius: var(--radius);
+}
+.warn {
+  color: var(--red);
 }
 .error-box div {
   flex: 1;

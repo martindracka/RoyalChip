@@ -16,7 +16,7 @@ const tone = computed(() => {
   <div class="result-slot" aria-live="polite">
     <Transition name="pop">
       <div v-if="result" :key="result.outcome + result.payout" class="result" :class="tone">
-        <strong v-if="tone === 'win'">You won {{ formatChips(result.payout) }} chips! 🎉</strong>
+        <strong v-if="tone === 'win'">You won {{ formatChips(result.payout) }} chips!</strong>
         <strong v-else-if="tone === 'push'">Push – your {{ formatChips(result.stake) }} chips are back</strong>
         <strong v-else>You lost {{ formatChips(result.stake) }} chips</strong>
         <span class="outcome">{{ result.outcome }}</span>

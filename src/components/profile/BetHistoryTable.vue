@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { formatChips, formatDate, gameTypeInfo } from '@/lib/format'
 
 // Reused on the profile page and in the admin bet log (with extra columns via props/slot).
@@ -27,7 +28,7 @@ defineProps({
         <tr v-for="bet in bets" :key="bet.$id">
           <td>{{ formatDate(bet.$createdAt) }}</td>
           <td v-if="showPlayer">{{ bet.username }}</td>
-          <td>{{ gameTypeInfo(bet.gameType).icon }} {{ bet.gameName }}</td>
+          <td class="game-cell"><AppIcon :name="gameTypeInfo(bet.gameType).icon" :size="16" /> {{ bet.gameName }}</td>
           <td>{{ formatChips(bet.amount) }}</td>
           <td :class="bet.payout > bet.amount ? 'positive' : bet.payout < bet.amount ? 'negative' : ''">
             {{ formatChips(bet.payout) }}
@@ -41,6 +42,10 @@ defineProps({
 </template>
 
 <style scoped>
+.game-cell :deep(svg) {
+  color: var(--gold);
+  margin-right: 0.35rem;
+}
 .outcome {
   white-space: normal;
   min-width: 220px;

@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { computed, watch, defineAsyncComponent } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAsync } from '@/composables/useAsync'
@@ -37,27 +38,27 @@ const available = computed(() => game.value && (game.value.isActive || auth.isSt
     <template v-else-if="game">
       <header class="page-header">
         <div>
-          <p class="type">{{ gameTypeInfo(game.type).icon }} {{ gameTypeInfo(game.type).label }}</p>
+          <p class="type"><AppIcon :name="gameTypeInfo(game.type).icon" :size="16" /> {{ gameTypeInfo(game.type).label }}</p>
           <h1>
             {{ game.name }}
             <StatusBadge v-if="!game.isActive" tone="warning" label="Hidden from players" />
           </h1>
           <p>{{ game.description }}</p>
         </div>
-        <BaseButton variant="ghost" to="/games">← All games</BaseButton>
+        <BaseButton variant="ghost" to="/games"><AppIcon name="arrow-left" :size="18" /> All games</BaseButton>
       </header>
 
       <EmptyState
         v-if="!available"
-        icon="🚧"
+        icon="construction"
         title="This game is currently unavailable"
         message="Please try one of our other games."
       />
-      <EmptyState v-else-if="!auth.isLoggedIn" icon="🔒" title="Log in to play" message="New players get 1,000 free chips.">
+      <EmptyState v-else-if="!auth.isLoggedIn" icon="lock" title="Log in to play" message="New players get 1,000 free chips.">
         <BaseButton :to="{ name: 'login', query: { redirect: $route.fullPath } }">Log in</BaseButton>
       </EmptyState>
       <component :is="gameComponent" v-else-if="gameComponent" :game="game" />
-      <EmptyState v-else icon="❓" title="Unknown game type" />
+      <EmptyState v-else icon="help" title="Unknown game type" />
     </template>
   </div>
 </template>

@@ -5,9 +5,11 @@ import { useAsync } from '@/composables/useAsync'
 import { listGames } from '@/services/gameService'
 import { listPromotions } from '@/services/promotionService'
 import { GAME_TYPES, formatChips } from '@/lib/format'
+import { photoUrl, photoSrcset } from '@/lib/images'
 import { STARTING_BALANCE } from '@/services/profileService'
 import { REFERRAL_REWARD } from '@/lib/referral'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import GameCard from '@/components/games/GameCard.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -19,10 +21,16 @@ const promotions = useAsync(() => listPromotions({ onlyCurrent: true }), { initi
 const featured = computed(() => games.data.value.slice(0, 4))
 const topPromo = computed(() => promotions.data.value[0])
 
+const trust = [
+  { icon: 'shield', text: 'Fair, crypto-secure RNG' },
+  { icon: 'zap', text: 'Instant payouts' },
+  { icon: 'lock', text: 'No real money involved' }
+]
+
 const steps = [
-  { icon: '📝', title: 'Create an account', text: `Sign up in seconds and get ${formatChips(STARTING_BALANCE)} free chips.` },
-  { icon: '🎯', title: 'Pick a game', text: 'Slots, roulette, blackjack, dice or a simple coin flip.' },
-  { icon: '🏆', title: 'Climb the leaderboard', text: 'Win chips, claim bonuses and beat other players.' }
+  { icon: 'user-plus', title: 'Create an account', text: `Sign up in seconds and get ${formatChips(STARTING_BALANCE)} free chips.` },
+  { icon: 'target', title: 'Pick a game', text: 'Slots, roulette, blackjack, dice or a simple coin flip.' },
+  { icon: 'trophy', title: 'Climb the leaderboard', text: 'Win chips, claim bonuses and beat other players.' }
 ]
 </script>
 
@@ -30,40 +38,43 @@ const steps = [
   <div class="home">
     <!-- HERO -->
     <section class="hero">
-      <div class="hero-text">
-        <p class="eyebrow"><span class="live" aria-hidden="true"></span> Play-money casino · no real money</p>
-        <h1>
-          The casino floor,<br />
-          <span class="gold-text">right in your browser.</span>
-        </h1>
-        <p class="lead">
-          Spin, deal and roll in five beautifully crafted games. Start with
-          <strong>{{ formatChips(STARTING_BALANCE) }} free chips</strong> – no deposit, no risk.
-        </p>
-        <div class="hero-actions">
-          <BaseButton v-if="!auth.isLoggedIn" to="/register" size="lg">Claim {{ formatChips(STARTING_BALANCE) }} free chips</BaseButton>
-          <BaseButton v-else to="/games" size="lg">Play now</BaseButton>
-          <BaseButton to="/games" size="lg" variant="secondary">Browse games</BaseButton>
+      <img
+        class="hero-bg"
+        :src="photoUrl('hero', 1600)"
+        :srcset="photoSrcset('hero')"
+        sizes="100vw"
+        alt=""
+        fetchpriority="high"
+      />
+      <div class="hero-inner">
+        <div class="hero-text">
+          <p class="eyebrow"><span class="live" aria-hidden="true"></span> Play-money casino · no real money</p>
+          <h1>
+            The casino floor,<br />
+            <span class="gold-text">right in your browser.</span>
+          </h1>
+          <p class="lead">
+            Spin, deal and roll in five beautifully crafted games. Start with
+            <strong>{{ formatChips(STARTING_BALANCE) }} free chips</strong> – no deposit, no risk.
+          </p>
+          <div class="hero-actions">
+            <BaseButton v-if="!auth.isLoggedIn" to="/register" size="lg">
+              Claim {{ formatChips(STARTING_BALANCE) }} free chips
+            </BaseButton>
+            <BaseButton v-else to="/games" size="lg"><AppIcon name="play" :size="18" /> Play now</BaseButton>
+            <BaseButton to="/games" size="lg" variant="secondary">Browse games</BaseButton>
+          </div>
+          <ul class="trust">
+            <li v-for="item in trust" :key="item.text"><AppIcon :name="item.icon" :size="18" /> {{ item.text }}</li>
+          </ul>
         </div>
-        <ul class="trust">
-          <li><span aria-hidden="true">✓</span> Free to play</li>
-          <li><span aria-hidden="true">✓</span> Instant payouts</li>
-          <li><span aria-hidden="true">✓</span> Fair, crypto-secure RNG</li>
-        </ul>
-      </div>
 
-      <div class="hero-art" aria-hidden="true">
-        <div class="glow"></div>
-        <div class="chip chip-a"></div>
-        <div class="chip chip-b"></div>
-        <div class="bonus-card">
+        <div class="bonus-card" aria-hidden="true">
+          <span class="bonus-icon"><AppIcon name="gift" :size="26" /></span>
           <p class="small">Welcome gift</p>
           <p class="big gold-text">+{{ formatChips(topPromo?.bonusAmount || STARTING_BALANCE) }}</p>
           <p class="small">bonus chips</p>
         </div>
-        <span class="float f1">🎰</span>
-        <span class="float f2">🃏</span>
-        <span class="float f3">🎲</span>
       </div>
     </section>
 
@@ -74,18 +85,20 @@ const steps = [
         :key="t.value"
         :to="{ name: 'games', query: { type: t.value } }"
         class="category"
-        :class="t.value"
       >
-        <span class="cat-icon" aria-hidden="true">{{ t.icon }}</span>
-        <span>{{ t.label }}</span>
+        <img :src="photoUrl(t.value, 640)" :srcset="`${photoUrl(t.value, 640)} 640w, ${photoUrl(t.value, 1080)} 1080w`" sizes="(max-width: 760px) 50vw, 20vw" alt="" loading="lazy" />
+        <span class="cat-label">
+          <span class="cat-icon"><AppIcon :name="t.icon" :size="18" /></span>
+          {{ t.label }}
+        </span>
       </RouterLink>
     </nav>
 
     <!-- FEATURED -->
     <section>
       <div class="page-header">
-        <h2 class="section-title"><span aria-hidden="true">🔥</span> Popular right now</h2>
-        <RouterLink to="/games">See all games →</RouterLink>
+        <h2 class="section-title"><AppIcon name="flame" :size="26" class="title-icon" /> Popular right now</h2>
+        <RouterLink to="/games" class="see-all">See all games <AppIcon name="arrow-right" :size="16" /></RouterLink>
       </div>
       <LoadingState v-if="games.loading.value" message="Shuffling the decks…" />
       <ErrorState v-else-if="games.error.value" :message="games.error.value" @retry="games.run()" />
@@ -97,23 +110,24 @@ const steps = [
 
     <!-- PROMO -->
     <RouterLink v-if="topPromo" to="/promotions" class="promo-banner">
-      <span class="promo-icon" aria-hidden="true">🎁</span>
+      <img class="banner-bg" :src="photoUrl('chips', 1600)" :srcset="photoSrcset('chips')" sizes="100vw" alt="" loading="lazy" />
+      <span class="promo-icon" aria-hidden="true"><AppIcon name="gift" :size="30" /></span>
       <span class="promo-text">
         <span class="promo-label">Limited offer</span>
         <strong>{{ topPromo.title }}</strong>
         <span>Claim <b>{{ formatChips(topPromo.bonusAmount) }}</b> bonus chips now</span>
       </span>
-      <span class="promo-cta">Claim bonus →</span>
+      <span class="promo-cta">Claim bonus <AppIcon name="arrow-right" :size="16" /></span>
     </RouterLink>
 
     <!-- INVITE FRIENDS -->
     <RouterLink to="/invite" class="invite-banner">
-      <span class="invite-icon" aria-hidden="true">👥</span>
+      <span class="invite-icon" aria-hidden="true"><AppIcon name="users" :size="26" /></span>
       <span class="invite-text">
         <strong>Invite friends, earn {{ formatChips(REFERRAL_REWARD) }} chips each</strong>
         <span class="muted">Your friends get extra chips too. No limit on invites.</span>
       </span>
-      <span class="invite-cta">Get your link →</span>
+      <span class="invite-cta">Get your link <AppIcon name="arrow-right" :size="16" /></span>
     </RouterLink>
 
     <!-- HOW IT WORKS -->
@@ -121,8 +135,8 @@ const steps = [
       <h2 class="section-title center">How it works</h2>
       <ol class="steps">
         <li v-for="(step, i) in steps" :key="step.title" class="step">
-          <span class="step-num" aria-hidden="true">{{ i + 1 }}</span>
-          <span class="step-icon" aria-hidden="true">{{ step.icon }}</span>
+          <span class="step-num" aria-hidden="true">0{{ i + 1 }}</span>
+          <span class="step-icon" aria-hidden="true"><AppIcon :name="step.icon" :size="24" /></span>
           <h3>{{ step.title }}</h3>
           <p class="muted">{{ step.text }}</p>
         </li>
@@ -131,9 +145,12 @@ const steps = [
 
     <!-- FINAL CTA -->
     <section v-if="!auth.isLoggedIn" class="final-cta">
-      <h2>Ready to <span class="gold-text">hit the jackpot?</span></h2>
-      <p class="muted">Join now – your {{ formatChips(STARTING_BALANCE) }} chips are waiting.</p>
-      <BaseButton to="/register" size="lg">Create free account</BaseButton>
+      <img class="banner-bg" :src="photoUrl('cards', 1600)" :srcset="photoSrcset('cards')" sizes="100vw" alt="" loading="lazy" />
+      <div class="final-inner">
+        <h2>Ready to <span class="gold-text">hit the jackpot?</span></h2>
+        <p>Join now – your {{ formatChips(STARTING_BALANCE) }} chips are waiting.</p>
+        <BaseButton to="/register" size="lg">Create free account</BaseButton>
+      </div>
     </section>
   </div>
 </template>
@@ -147,19 +164,50 @@ const steps = [
 
 /* ---------- Hero ---------- */
 .hero {
-  display: grid;
-  grid-template-columns: 1.25fr 1fr;
-  gap: 2rem;
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  min-height: 540px;
+  display: flex;
   align-items: center;
-  padding: 2.5rem 0 1rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 80px rgb(0 0 0 / 0.5);
+}
+.hero-bg,
+.banner-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgb(10 11 20 / 0.95) 0%, rgb(10 11 20 / 0.82) 45%, rgb(10 11 20 / 0.35) 100%),
+    linear-gradient(0deg, rgb(10 11 20 / 0.7), transparent 40%);
+}
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  padding: 3.5rem;
 }
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   color: var(--gold-strong);
-  background: rgb(242 185 56 / 0.1);
-  border: 1px solid rgb(242 185 56 / 0.3);
+  background: rgb(242 185 56 / 0.12);
+  border: 1px solid rgb(242 185 56 / 0.35);
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
   font-weight: 600;
@@ -167,6 +215,7 @@ const steps = [
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin: 0 0 1.25rem;
+  backdrop-filter: blur(6px);
 }
 .live {
   width: 8px;
@@ -192,7 +241,7 @@ h1 {
 }
 .lead {
   font-size: 1.15rem;
-  color: var(--text-muted);
+  color: rgb(255 255 255 / 0.75);
   max-width: 540px;
 }
 .lead strong {
@@ -210,78 +259,49 @@ h1 {
   gap: 0.5rem 1.5rem;
   list-style: none;
   padding: 0;
-  margin: 1.5rem 0 0;
-  color: var(--text-muted);
+  margin: 1.75rem 0 0;
+  color: rgb(255 255 255 / 0.75);
   font-size: 0.92rem;
 }
-.trust span {
-  color: var(--green);
-  font-weight: 700;
-  margin-right: 0.2rem;
+.trust li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.trust :deep(svg) {
+  color: var(--gold);
 }
 
-.hero-art {
-  position: relative;
-  height: 380px;
-}
-.glow {
-  position: absolute;
-  inset: 10% 5%;
-  background: radial-gradient(circle, rgb(139 92 246 / 0.45), rgb(236 72 153 / 0.15) 45%, transparent 70%);
-  filter: blur(20px);
-}
-.chip {
-  position: absolute;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, #1b1405 0 38%, transparent 39%),
-    repeating-conic-gradient(#f5b82e 0 30deg, #fff3cf 30deg 45deg);
-  box-shadow: 0 20px 40px rgb(0 0 0 / 0.5), 0 0 30px rgb(242 185 56 / 0.35);
-  animation: spin 14s linear infinite;
-}
-.chip-a {
-  width: 120px;
-  height: 120px;
-  left: 4%;
-  top: 8%;
-}
-.chip-b {
-  width: 80px;
-  height: 80px;
-  right: 6%;
-  bottom: 8%;
-  animation-direction: reverse;
-  background:
-    radial-gradient(circle, #2a0b1f 0 38%, transparent 39%),
-    repeating-conic-gradient(#ec4899 0 30deg, #ffe4f2 30deg 45deg);
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 .bonus-card {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) rotate(-4deg);
-  width: 230px;
-  padding: 1.5rem;
+  justify-self: center;
+  width: 250px;
+  padding: 1.75rem 1.5rem;
   text-align: center;
-  border-radius: 20px;
-  background: linear-gradient(160deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.03));
-  border: 1px solid rgb(255 255 255 / 0.18);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 30px 60px rgb(0 0 0 / 0.5);
+  border-radius: 22px;
+  background: linear-gradient(160deg, rgb(20 22 38 / 0.75), rgb(20 22 38 / 0.45));
+  border: 1px solid rgb(242 185 56 / 0.35);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 30px 60px rgb(0 0 0 / 0.55), var(--shadow-gold);
+  animation: float 6s ease-in-out infinite;
+}
+.bonus-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 0.75rem;
+  border-radius: 50%;
+  background: var(--gold-gradient);
+  color: #241600;
 }
 .bonus-card p {
   margin: 0;
 }
 .bonus-card .small {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 .bonus-card .big {
   font-family: var(--font-display);
@@ -289,116 +309,128 @@ h1 {
   font-weight: 800;
   line-height: 1.1;
 }
-.float {
-  position: absolute;
-  font-size: 3.5rem;
-  filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.5));
-  animation: float 5s ease-in-out infinite;
-}
-.f1 {
-  right: 8%;
-  top: 4%;
-}
-.f2 {
-  left: 6%;
-  bottom: 6%;
-  animation-delay: -1.6s;
-}
-.f3 {
-  right: 32%;
-  bottom: -2%;
-  animation-delay: -3.2s;
-}
 @keyframes float {
   50% {
-    transform: translateY(-14px) rotate(8deg);
+    transform: translateY(-10px);
   }
 }
 
-/* ---------- Categories ---------- */
+/* ---------- Categories (photo tiles) ---------- */
 .categories {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.9rem;
+  gap: 1rem;
 }
 .category {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  color: #fff;
+  text-decoration: none;
+  isolation: isolate;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.category img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  transition: transform 0.5s;
+}
+.category::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, rgb(10 11 20 / 0.92) 5%, rgb(10 11 20 / 0.1) 60%);
+}
+.category:hover,
+.category:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgb(242 185 56 / 0.6);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 0.45);
+}
+.category:hover img {
+  transform: scale(1.08);
+}
+.cat-label {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.1rem;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text);
+  gap: 0.6rem;
+  font-family: var(--font-display);
   font-weight: 700;
-  text-decoration: none;
-  transition: transform 0.15s, border-color 0.15s, background 0.15s;
-}
-.category:hover {
-  transform: translateY(-3px);
-  border-color: var(--gold);
-  background: var(--surface-2);
+  font-size: 1.1rem;
 }
 .cat-icon {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  font-size: 1.5rem;
-  background: linear-gradient(135deg, #3b2a7a, #1b1640);
-}
-.slots .cat-icon {
-  background: linear-gradient(135deg, #a21caf, #4a044e);
-}
-.roulette .cat-icon {
-  background: linear-gradient(135deg, #dc2626, #450a0a);
-}
-.blackjack .cat-icon {
-  background: linear-gradient(135deg, #059669, #022c22);
-}
-.dice .cat-icon {
-  background: linear-gradient(135deg, #2563eb, #0b1a45);
-}
-.coinflip .cat-icon {
-  background: linear-gradient(135deg, #d97706, #451a03);
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--gold-gradient);
+  color: #241600;
 }
 
 .section-title.center {
   justify-content: center;
   margin-bottom: 1.5rem;
 }
+.title-icon {
+  color: #ff6b4a;
+}
+.see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
 
 /* ---------- Promo banner ---------- */
 .promo-banner {
   position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  padding: 1.5rem 1.75rem;
-  border-radius: 20px;
+  padding: 2.25rem 2rem;
+  border-radius: 22px;
   overflow: hidden;
-  background: linear-gradient(110deg, #6d28d9 0%, #db2777 55%, #f59e0b 120%);
   color: #fff;
   text-decoration: none;
-  box-shadow: 0 20px 50px rgb(219 39 119 / 0.25);
+  border: 1px solid rgb(242 185 56 / 0.3);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.4);
   transition: transform 0.2s;
+}
+.promo-banner .banner-bg {
+  z-index: -2;
+}
+.promo-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgb(10 11 20 / 0.95) 20%, rgb(10 11 20 / 0.55) 70%, rgb(10 11 20 / 0.3));
 }
 .promo-banner:hover {
   transform: translateY(-3px);
 }
-.promo-banner::before {
-  content: '';
-  position: absolute;
-  right: -60px;
-  top: -60px;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: rgb(255 255 255 / 0.12);
-}
 .promo-icon {
-  font-size: 3rem;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  background: var(--gold-gradient);
+  color: #241600;
+  box-shadow: var(--shadow-gold);
 }
 .promo-text {
   display: flex;
@@ -407,22 +439,27 @@ h1 {
 }
 .promo-text strong {
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   line-height: 1.2;
+}
+.promo-text b {
+  color: var(--gold);
 }
 .promo-label {
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.85;
+  letter-spacing: 0.12em;
+  color: var(--gold);
 }
 .promo-cta {
-  position: relative;
-  background: #fff;
-  color: #6d28d9;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--gold-gradient);
+  color: #241600;
   font-weight: 800;
-  padding: 0.75rem 1.4rem;
+  padding: 0.8rem 1.5rem;
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -442,7 +479,7 @@ h1 {
   transition: border-color 0.2s, transform 0.2s;
 }
 .invite-banner:hover {
-  border-color: var(--pink);
+  border-color: var(--gold);
   transform: translateY(-2px);
 }
 .invite-icon {
@@ -452,8 +489,9 @@ h1 {
   height: 56px;
   flex-shrink: 0;
   border-radius: 16px;
-  font-size: 1.8rem;
-  background: linear-gradient(135deg, var(--violet), var(--pink));
+  color: var(--gold);
+  background: rgb(242 185 56 / 0.1);
+  border: 1px solid rgb(242 185 56 / 0.3);
 }
 .invite-text {
   display: flex;
@@ -465,7 +503,10 @@ h1 {
   font-size: 1.25rem;
 }
 .invite-cta {
-  color: var(--pink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--gold);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -496,10 +537,17 @@ h1 {
   color: rgb(255 255 255 / 0.06);
 }
 .step-icon {
-  font-size: 2rem;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  color: var(--gold);
+  background: rgb(242 185 56 / 0.1);
+  border: 1px solid rgb(242 185 56 / 0.3);
 }
 .step h3 {
-  margin: 0.75rem 0 0.35rem;
+  margin: 1rem 0 0.35rem;
   font-size: 1.2rem;
 }
 .step p {
@@ -508,36 +556,60 @@ h1 {
 
 /* ---------- Final CTA ---------- */
 .final-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   text-align: center;
-  padding: 3rem 1.5rem;
+  padding: 4rem 1.5rem;
   border-radius: 24px;
-  background:
-    radial-gradient(600px 200px at 50% 0%, rgb(242 185 56 / 0.18), transparent 70%),
-    var(--surface);
   border: 1px solid var(--border);
 }
+.final-cta .banner-bg {
+  z-index: -2;
+}
+.final-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 50%, rgb(10 11 20 / 0.6), rgb(10 11 20 / 0.92) 70%);
+}
 .final-cta h2 {
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
 }
 .final-cta p {
   margin: 0 0 1.5rem;
+  color: rgb(255 255 255 / 0.75);
 }
 
 @media (max-width: 960px) {
   .categories {
     grid-template-columns: repeat(3, 1fr);
   }
+  .hero-inner {
+    grid-template-columns: 1fr;
+    padding: 2.5rem 2rem;
+  }
+  .bonus-card {
+    display: none;
+  }
 }
 @media (max-width: 760px) {
   .hero {
-    grid-template-columns: 1fr;
-    padding-top: 1rem;
+    min-height: 0;
   }
-  .hero-art {
-    display: none;
+  .hero-inner {
+    padding: 2rem 1.25rem;
+  }
+  .hero::after {
+    background: linear-gradient(0deg, rgb(10 11 20 / 0.95) 30%, rgb(10 11 20 / 0.6));
   }
   .categories {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .category:last-child {
+    grid-column: span 2;
+    aspect-ratio: 2 / 1;
   }
   .steps {
     grid-template-columns: 1fr;

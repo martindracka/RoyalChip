@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useReferrals } from '@/composables/useReferrals'
@@ -25,21 +26,21 @@ const link = computed(() => buildReferralLink(window.location.origin, auth.user.
     </div>
 
     <section class="stats" aria-label="Referral statistics">
-      <StatCard icon="👥" label="Friends invited" :value="formatChips(stats.invited)" />
-      <StatCard icon="🎁" label="Rewards ready" :value="formatChips(stats.ready)" />
-      <StatCard icon="💰" label="Chips earned" :value="formatChips(stats.earned)" />
+      <StatCard icon="users" label="Friends invited" :value="formatChips(stats.invited)" />
+      <StatCard icon="gift" label="Rewards ready" :value="formatChips(stats.ready)" />
+      <StatCard icon="coins" label="Chips earned" :value="formatChips(stats.earned)" />
     </section>
 
     <section>
       <div class="page-header">
         <h2 class="section-title">Your friends</h2>
-        <button type="button" class="refresh" :disabled="loading" @click="reload()">↻ Refresh</button>
+        <button type="button" class="refresh" :disabled="loading" @click="reload()"><AppIcon name="refresh" :size="14" /> Refresh</button>
       </div>
       <LoadingState v-if="loading" message="Looking for your friends…" />
       <ErrorState v-else-if="error" :message="error" @retry="reload()" />
       <EmptyState
         v-else-if="!friends.length"
-        icon="💌"
+        icon="mail"
         title="No friends yet"
         message="Share your link above – friends who join will appear here."
       />
@@ -79,6 +80,9 @@ const link = computed(() => buildReferralLink(window.location.origin, auth.user.
   border-radius: var(--radius);
 }
 .refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font: inherit;
   font-weight: 600;
   color: var(--text-muted);

@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { formatChips, formatDate } from '@/lib/format'
 import { REFERRAL_REWARD, WAGER_TARGET } from '@/lib/referral'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -34,7 +35,7 @@ defineEmits(['claim'])
       <BaseButton v-if="friend.status === 'ready'" :loading="claiming" @click="$emit('claim', friend)">
         Claim {{ formatChips(REFERRAL_REWARD) }} chips
       </BaseButton>
-      <span v-else-if="friend.status === 'rewarded'" class="done-label">✔ Reward claimed</span>
+      <span v-else-if="friend.status === 'rewarded'" class="done-label"><AppIcon name="circle-check" :size="16" /> Reward claimed</span>
       <span v-else class="pending-label">{{ formatChips(friend.progress.remaining) }} chips to go</span>
     </div>
   </li>
@@ -91,6 +92,9 @@ p {
   background: var(--gold-gradient);
 }
 .done-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   color: var(--green);
   font-weight: 700;
   white-space: nowrap;

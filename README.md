@@ -50,6 +50,8 @@ promotions and players in a protected administration area.
 | Backend | Appwrite Cloud – Auth, TablesDB (database), Storage | Required |
 | Tests | Vitest (pure game logic, validation, roles) | |
 | Language | Plain JavaScript | Easier to read and explain |
+| Icons | [Lucide](https://lucide.dev) (`lucide-vue-next`) via one `AppIcon` component | Crisp SVG icons instead of emoji, consistent on every OS |
+| Photos | [Unsplash](https://unsplash.com) (Unsplash License), see `src/lib/images.js` | High-res photos with `srcset` up to 4K – the browser loads only the size it needs |
 
 ---
 

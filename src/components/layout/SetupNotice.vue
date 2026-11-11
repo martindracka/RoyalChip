@@ -1,7 +1,7 @@
 <template>
   <div class="container setup">
     <div class="card">
-      <h1>🎰 Almost there!</h1>
+      <h1>Almost there!</h1>
       <p>The app is not connected to Appwrite yet.</p>
       <ol>
         <li>Copy <code>.env.example</code> to <code>.env</code></li>

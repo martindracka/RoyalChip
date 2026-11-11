@@ -49,7 +49,7 @@ async function remove(bet) {
       <label class="sr-only" for="bet-type">Game type</label>
       <select id="bet-type" v-model="gameType">
         <option value="">All game types</option>
-        <option v-for="t in GAME_TYPES" :key="t.value" :value="t.value">{{ t.icon }} {{ t.label }}</option>
+        <option v-for="t in GAME_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
       </select>
       <p v-if="bets.length" class="muted summary">
         {{ summary.count }} rounds · wagered {{ formatChips(summary.wagered) }} · house profit
@@ -59,7 +59,7 @@ async function remove(bet) {
 
     <LoadingState v-if="loading" />
     <ErrorState v-else-if="error" :message="error" @retry="run" />
-    <EmptyState v-else-if="!bets.length" icon="📜" title="No bets recorded" />
+    <EmptyState v-else-if="!bets.length" icon="scroll" title="No bets recorded" />
     <BetHistoryTable v-else :bets="bets" show-player>
       <template #actions="{ bet }">
         <BaseButton size="sm" variant="ghost" @click="remove(bet)">Delete</BaseButton>

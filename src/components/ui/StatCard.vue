@@ -1,4 +1,6 @@
 <script setup>
+import AppIcon from './AppIcon.vue'
+
 defineProps({
   label: { type: String, required: true },
   value: { type: [String, Number], required: true },
@@ -8,7 +10,7 @@ defineProps({
 
 <template>
   <div class="stat card">
-    <span class="icon" aria-hidden="true">{{ icon }}</span>
+    <span class="icon" aria-hidden="true"><AppIcon :name="icon" :size="24" /></span>
     <div>
       <p class="label">{{ label }}</p>
       <p class="value">{{ value }}</p>
@@ -30,9 +32,9 @@ defineProps({
   height: 52px;
   flex-shrink: 0;
   border-radius: 14px;
-  font-size: 1.6rem;
-  background: linear-gradient(135deg, rgb(139 92 246 / 0.35), rgb(236 72 153 / 0.2));
-  border: 1px solid rgb(255 255 255 / 0.08);
+  color: var(--gold);
+  background: linear-gradient(135deg, rgb(242 185 56 / 0.18), rgb(242 185 56 / 0.04));
+  border: 1px solid rgb(242 185 56 / 0.25);
 }
 .label {
   margin: 0;

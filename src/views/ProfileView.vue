@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
@@ -57,16 +58,16 @@ async function refill() {
   <div v-if="profile" class="profile">
     <header class="page-header">
       <div>
-        <h1>Hi, {{ profile.username }} 👋</h1>
+        <h1>Hi, {{ profile.username }}</h1>
         <p>{{ auth.user.email }} · <StatusBadge :label="auth.role" tone="warning" /></p>
       </div>
     </header>
 
     <section class="stats">
-      <StatCard icon="💰" label="Balance" :value="formatChips(profile.balance)" />
-      <StatCard icon="🎯" label="Rounds played" :value="formatChips(profile.gamesPlayed)" />
-      <StatCard icon="💸" label="Total wagered" :value="formatChips(profile.totalWagered)" />
-      <StatCard icon="📈" label="Net result" :value="(net >= 0 ? '+' : '') + formatChips(net)" />
+      <StatCard icon="wallet" label="Balance" :value="formatChips(profile.balance)" />
+      <StatCard icon="target" label="Rounds played" :value="formatChips(profile.gamesPlayed)" />
+      <StatCard icon="banknote" label="Total wagered" :value="formatChips(profile.totalWagered)" />
+      <StatCard icon="trending" label="Net result" :value="(net >= 0 ? '+' : '') + formatChips(net)" />
     </section>
 
     <div class="columns">
@@ -99,7 +100,7 @@ async function refill() {
       <h2>Recent bets</h2>
       <LoadingState v-if="bets.loading.value" />
       <ErrorState v-else-if="bets.error.value" :message="bets.error.value" @retry="bets.run()" />
-      <EmptyState v-else-if="!bets.data.value.length" icon="🎲" title="No bets yet" message="Your rounds will show up here.">
+      <EmptyState v-else-if="!bets.data.value.length" icon="dices" title="No bets yet" message="Your rounds will show up here.">
         <BaseButton to="/games">Play a game</BaseButton>
       </EmptyState>
       <BetHistoryTable v-else :bets="bets.data.value" />

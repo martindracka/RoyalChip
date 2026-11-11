@@ -22,13 +22,13 @@ export function toDateInput(iso) {
 }
 
 export const GAME_TYPES = [
-  { value: 'slots', label: 'Slots', icon: '🎰' },
-  { value: 'roulette', label: 'Roulette', icon: '🎡' },
-  { value: 'blackjack', label: 'Blackjack', icon: '🃏' },
-  { value: 'dice', label: 'Dice', icon: '🎲' },
-  { value: 'coinflip', label: 'Coin Flip', icon: '💰' }
+  { value: 'slots', label: 'Slots', icon: 'cherry' },
+  { value: 'roulette', label: 'Roulette', icon: 'circle-dot' },
+  { value: 'blackjack', label: 'Blackjack', icon: 'spade' },
+  { value: 'dice', label: 'Dice', icon: 'dices' },
+  { value: 'coinflip', label: 'Coin Flip', icon: 'coins' }
 ]
 
 export function gameTypeInfo(type) {
-  return GAME_TYPES.find((t) => t.value === type) || { value: type, label: type, icon: '🎮' }
+  return GAME_TYPES.find((t) => t.value === type) || { value: type, label: type, icon: 'gamepad' }
 }

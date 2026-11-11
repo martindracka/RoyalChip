@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { ref } from 'vue'
 import { useToast } from '@/composables/useToast'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -39,8 +40,8 @@ async function share() {
     <label for="invite-link" class="label">Your personal invite link</label>
     <div class="row">
       <input id="invite-link" :value="link" readonly @focus="$event.target.select()" />
-      <BaseButton @click="copy">{{ copied ? '✔ Copied' : 'Copy link' }}</BaseButton>
-      <BaseButton v-if="canShare" variant="secondary" @click="share">Share</BaseButton>
+      <BaseButton @click="copy"><AppIcon :name="copied ? 'check' : 'copy'" :size="16" /> {{ copied ? 'Copied' : 'Copy link' }}</BaseButton>
+      <BaseButton v-if="canShare" variant="secondary" @click="share"><AppIcon name="share" :size="16" /> Share</BaseButton>
     </div>
   </div>
 </template>

@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { useAuthStore } from '@/stores/auth'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 
@@ -13,12 +14,12 @@ const auth = useAuthStore()
         <StatusBadge :label="auth.role" tone="warning" />
       </p>
       <nav>
-        <RouterLink :to="{ name: 'admin' }" exact-active-class="active">📊 Dashboard</RouterLink>
-        <RouterLink :to="{ name: 'admin-games' }" active-class="active">🎰 Games</RouterLink>
-        <RouterLink :to="{ name: 'admin-promotions' }" active-class="active">🎁 Promotions</RouterLink>
+        <RouterLink :to="{ name: 'admin' }" exact-active-class="active"><AppIcon name="dashboard" :size="18" /> Dashboard</RouterLink>
+        <RouterLink :to="{ name: 'admin-games' }" active-class="active"><AppIcon name="gamepad" :size="18" /> Games</RouterLink>
+        <RouterLink :to="{ name: 'admin-promotions' }" active-class="active"><AppIcon name="gift" :size="18" /> Promotions</RouterLink>
         <template v-if="auth.hasPermission('manage:players')">
-          <RouterLink :to="{ name: 'admin-players' }" active-class="active">👥 Players</RouterLink>
-          <RouterLink :to="{ name: 'admin-bets' }" active-class="active">📜 Bet log</RouterLink>
+          <RouterLink :to="{ name: 'admin-players' }" active-class="active"><AppIcon name="users" :size="18" /> Players</RouterLink>
+          <RouterLink :to="{ name: 'admin-bets' }" active-class="active"><AppIcon name="scroll" :size="18" /> Bet log</RouterLink>
         </template>
       </nav>
     </aside>
@@ -58,6 +59,9 @@ nav {
   gap: 0.25rem;
 }
 nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   padding: 0.55rem 0.75rem;
   border-radius: var(--radius-sm);
   color: var(--text-muted);

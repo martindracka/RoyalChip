@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAsync } from '@/composables/useAsync'
@@ -76,10 +77,10 @@ async function remove(game) {
 
     <LoadingState v-if="loading" />
     <ErrorState v-else-if="error" :message="error" @retry="run" />
-    <EmptyState v-else-if="!games.length" icon="🎰" title="No games yet" message="Create the first game of your casino.">
+    <EmptyState v-else-if="!games.length" icon="gamepad" title="No games yet" message="Create the first game of your casino.">
       <BaseButton :to="{ name: 'admin-game-new' }">+ New game</BaseButton>
     </EmptyState>
-    <EmptyState v-else-if="!filtered.length" icon="🔍" title="No games match the filter" />
+    <EmptyState v-else-if="!filtered.length" icon="search" title="No games match the filter" />
     <div v-else class="table-wrap">
       <table>
         <thead>
@@ -96,7 +97,7 @@ async function remove(game) {
             <td>
               <div class="name">
                 <img v-if="game.imageId" :src="getImageUrl(game.imageId)" alt="" class="thumb" />
-                <span v-else class="thumb placeholder" aria-hidden="true">{{ gameTypeInfo(game.type).icon }}</span>
+                <span v-else class="thumb placeholder" aria-hidden="true"><AppIcon :name="gameTypeInfo(game.type).icon" :size="22" /></span>
                 {{ game.name }}
               </div>
             </td>

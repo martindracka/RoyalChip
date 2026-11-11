@@ -1,6 +1,8 @@
 <script setup>
 import { formatChips, formatDate } from '@/lib/format'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import { photoUrl } from '@/lib/images'
 
 defineProps({
   promotion: { type: Object, required: true },
@@ -13,14 +15,17 @@ defineEmits(['claim'])
 
 <template>
   <article class="promo card">
-    <span class="ribbon" aria-hidden="true">🎁</span>
+    <div class="photo" aria-hidden="true">
+      <img :src="photoUrl('chips', 800)" :srcset="`${photoUrl('chips', 800)} 800w, ${photoUrl('chips', 1600)} 1600w`" sizes="400px" alt="" loading="lazy" />
+      <span class="ribbon"><AppIcon name="gift" :size="22" /></span>
+    </div>
     <p class="bonus"><span class="gold-text">+{{ formatChips(promotion.bonusAmount) }}</span> <span class="unit">chips</span></p>
     <h3>{{ promotion.title }}</h3>
     <p class="muted">{{ promotion.description }}</p>
-    <p class="dates">Valid until {{ formatDate(promotion.endsAt) }}</p>
+    <p class="dates"><AppIcon name="clock" :size="14" /> Valid until {{ formatDate(promotion.endsAt) }}</p>
     <slot name="action">
       <BaseButton v-if="!canClaim" variant="secondary" to="/login">Log in to claim</BaseButton>
-      <BaseButton v-else-if="claimed" variant="secondary" disabled>✔ Claimed</BaseButton>
+      <BaseButton v-else-if="claimed" variant="secondary" disabled><AppIcon name="check" :size="16" /> Claimed</BaseButton>
       <BaseButton v-else :loading="claiming" @click="$emit('claim', promotion)">Claim bonus</BaseButton>
     </slot>
   </article>
@@ -33,10 +38,8 @@ defineEmits(['claim'])
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  background:
-    radial-gradient(400px 160px at 100% 0%, rgb(236 72 153 / 0.22), transparent 70%),
-    radial-gradient(300px 160px at 0% 0%, rgb(139 92 246 / 0.25), transparent 70%),
-    var(--surface);
+  padding-top: 0;
+  background: var(--surface);
   border-color: var(--border-strong);
   transition: transform 0.2s, border-color 0.2s;
 }
@@ -44,12 +47,36 @@ defineEmits(['claim'])
   transform: translateY(-4px);
   border-color: rgb(242 185 56 / 0.6);
 }
+.photo {
+  position: relative;
+  height: 150px;
+  margin: 0 -1.5rem 0.75rem;
+}
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--surface), transparent 70%);
+}
 .ribbon {
   position: absolute;
+  z-index: 1;
   top: 1rem;
-  right: 1.1rem;
-  font-size: 2.2rem;
-  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.4));
+  right: 1rem;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gold-gradient);
+  color: #241600;
+  box-shadow: var(--shadow-gold);
 }
 .bonus {
   margin: 0;
@@ -71,6 +98,9 @@ p {
   margin: 0;
 }
 .dates {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-bottom: 0.9rem;

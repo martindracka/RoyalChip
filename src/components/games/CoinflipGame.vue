@@ -8,6 +8,7 @@ import { sleep } from '@/lib/sleep'
 import BetInput from './BetInput.vue'
 import RoundResult from './RoundResult.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
 
 const props = defineProps({ game: { type: Object, required: true } })
 
@@ -36,8 +37,8 @@ async function flip() {
   <div class="game-layout">
     <section class="game-stage coin-stage" aria-label="Coin">
       <div class="coin" :style="{ transform: `rotateY(${rotation}deg)` }" aria-hidden="true">
-        <div class="face front">👑</div>
-        <div class="face back">🦅</div>
+        <div class="face front"><AppIcon name="crown" :size="84" :stroke-width="1.5" /></div>
+        <div class="face back"><AppIcon name="bird" :size="84" :stroke-width="1.5" /></div>
       </div>
       <RoundResult :result="lastResult" />
     </section>
@@ -62,7 +63,8 @@ async function flip() {
           :disabled="inRound"
           @click="choice = side"
         >
-          {{ side === 'heads' ? '👑 Heads' : '🦅 Tails' }}
+          <AppIcon :name="side === 'heads' ? 'crown' : 'bird'" :size="18" />
+          {{ side === 'heads' ? 'Heads' : 'Tails' }}
         </button>
       </div>
       <p class="muted">A correct guess pays {{ COINFLIP_MULTIPLIER }}×.</p>
@@ -89,7 +91,7 @@ async function flip() {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 4.5rem;
+  color: #7a5408;
   backface-visibility: hidden;
   background: radial-gradient(circle at 30% 30%, #ffe08a, #c08b17);
   border: 8px solid #a37512;
@@ -112,6 +114,10 @@ async function flip() {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
 }
 .choices button.active {
   outline: 2px solid var(--gold);

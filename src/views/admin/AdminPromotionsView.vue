@@ -1,4 +1,5 @@
 <script setup>
+import AppIcon from '@/components/ui/AppIcon.vue'
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAsync } from '@/composables/useAsync'
@@ -55,7 +56,7 @@ async function remove(promo) {
 
     <LoadingState v-if="loading" />
     <ErrorState v-else-if="error" :message="error" @retry="run" />
-    <EmptyState v-else-if="!promotions.length" icon="🎁" title="No promotions yet">
+    <EmptyState v-else-if="!promotions.length" icon="gift" title="No promotions yet">
       <BaseButton :to="{ name: 'admin-promotion-new' }">+ New promotion</BaseButton>
     </EmptyState>
     <div v-else class="table-wrap">
@@ -73,7 +74,7 @@ async function remove(promo) {
           <tr v-for="promo in promotions" :key="promo.$id">
             <td><strong>{{ promo.title }}</strong></td>
             <td>{{ formatChips(promo.bonusAmount) }}</td>
-            <td>{{ formatDate(promo.startsAt) }} → {{ formatDate(promo.endsAt) }}</td>
+            <td>{{ formatDate(promo.startsAt) }} – {{ formatDate(promo.endsAt) }}</td>
             <td><StatusBadge v-bind="status(promo)" /></td>
             <td class="actions">
               <BaseButton size="sm" variant="secondary" :to="{ name: 'admin-promotion-edit', params: { id: promo.$id } }">
