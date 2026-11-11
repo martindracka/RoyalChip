@@ -184,5 +184,26 @@ export const SEED = {
     { title: 'Welcome Bonus', description: 'A little extra to get you started. Claim once per account.', bonusAmount: 500, startsAt: inDays(-1), endsAt: inDays(60), isActive: true },
     { title: 'Weekend Spins', description: 'Free chips for the weekend – try the new Diamond Rush slot!', bonusAmount: 250, startsAt: inDays(-1), endsAt: inDays(14), isActive: true },
     { title: 'High Roller Club', description: 'Coming soon: a bonus for our biggest players.', bonusAmount: 2000, startsAt: inDays(7), endsAt: inDays(37), isActive: true }
-  ]
+  ],
+  // Demo players so the leaderboard is not empty on a fresh project.
+  // They are profiles without a login account (no Appwrite user behind them).
+  profiles: [
+    ['LuckyLarry', 18450, 15900, 412, 4210],
+    ['AceOfSpades', 12780, 11400, 305, 2890],
+    ['RouletteQueen', 9620, 8800, 266, 3150],
+    ['HighRoller99', 6340, 7100, 198, 820],
+    ['JackpotJoe', 3980, 3700, 121, 1760],
+    ['SpinDoctor', 1890, 2050, 87, 640],
+    ['DiceDiva', 1420, 1500, 73, 1210],
+    ['CardShark', 1160, 1300, 58, 930],
+    ['ChipChaser', 880, 1000, 44, 1050],
+    ['CoinFlipKing', 410, 600, 25, 760]
+  ].map(([username, totalWon, totalWagered, gamesPlayed, balance]) => ({
+    username,
+    totalWon,
+    totalWagered,
+    gamesPlayed,
+    balance,
+    referredBy: null
+  }))
 }

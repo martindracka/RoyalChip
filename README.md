@@ -81,6 +81,8 @@ Fill in `VITE_APPWRITE_ENDPOINT`, `VITE_APPWRITE_PROJECT_ID` and `APPWRITE_API_K
 npm run setup:appwrite
 ```
 The script is idempotent – running it again skips what already exists.
+It also adds demo data: 6 games, 3 promotions and 10 demo players for the leaderboard
+(profiles without a login account – an admin can delete them in **Admin → Players**).
 
 ### 5. Run the app
 ```bash

@@ -131,6 +131,7 @@ async function main() {
   console.log('\n🌱 Demo data')
   await seed('games', SEED.games)
   await seed('promotions', SEED.promotions)
+  await seed('profiles', SEED.profiles)
 
   console.log('\n✅ Done! Next: register in the app, then run  npm run set-role -- your@email.com admin')
 }
