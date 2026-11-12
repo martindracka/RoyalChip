@@ -22,16 +22,28 @@ export function getGame(id) {
 // so we don't pass any row-level permissions here.
 export async function createGame(data, imageFile) {
   const imageId = imageFile ? await uploadImage(imageFile) : null
-  return createRow(T, ID.unique(), { ...data, imageId })
+  try {
+    return await createRow(T, ID.unique(), { ...data, imageId })
+  } catch (error) {
+    await deleteImage(imageId) // don't leave an unused file in Storage
+    throw error
+  }
 }
 
+// The old image is deleted only after the row points to the new one,
+// so a failed save never leaves the game with a missing image.
 export async function updateGame(game, data, imageFile) {
-  let imageId = game.imageId
-  if (imageFile) {
-    imageId = await uploadImage(imageFile)
-    await deleteImage(game.imageId)
+  if (!imageFile) return updateRow(T, game.$id, data)
+  const imageId = await uploadImage(imageFile)
+  let updated
+  try {
+    updated = await updateRow(T, game.$id, { ...data, imageId })
+  } catch (error) {
+    await deleteImage(imageId)
+    throw error
   }
-  return updateRow(T, game.$id, { ...data, imageId })
+  await deleteImage(game.imageId)
+  return updated
 }
 
 export async function deleteGame(game) {

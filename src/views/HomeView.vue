@@ -36,7 +36,6 @@ const steps = [
 
 <template>
   <div class="home">
-    <!-- HERO -->
     <section class="hero">
       <img
         class="hero-bg"
@@ -78,7 +77,6 @@ const steps = [
       </div>
     </section>
 
-    <!-- CATEGORIES -->
     <nav class="categories" aria-label="Game categories">
       <RouterLink
         v-for="t in GAME_TYPES"
@@ -94,7 +92,6 @@ const steps = [
       </RouterLink>
     </nav>
 
-    <!-- FEATURED -->
     <section>
       <div class="page-header">
         <h2 class="section-title"><AppIcon name="flame" :size="26" class="title-icon" /> Popular right now</h2>
@@ -108,7 +105,6 @@ const steps = [
       </div>
     </section>
 
-    <!-- PROMO -->
     <RouterLink v-if="topPromo" to="/promotions" class="promo-banner">
       <img class="banner-bg" :src="photoUrl('chips', 1600)" :srcset="photoSrcset('chips')" sizes="100vw" alt="" loading="lazy" />
       <span class="promo-icon" aria-hidden="true"><AppIcon name="gift" :size="30" /></span>
@@ -120,7 +116,6 @@ const steps = [
       <span class="promo-cta">Claim bonus <AppIcon name="arrow-right" :size="16" /></span>
     </RouterLink>
 
-    <!-- INVITE FRIENDS -->
     <RouterLink to="/invite" class="invite-banner">
       <span class="invite-icon" aria-hidden="true"><AppIcon name="users" :size="26" /></span>
       <span class="invite-text">
@@ -130,7 +125,6 @@ const steps = [
       <span class="invite-cta">Get your link <AppIcon name="arrow-right" :size="16" /></span>
     </RouterLink>
 
-    <!-- HOW IT WORKS -->
     <section>
       <h2 class="section-title center">How it works</h2>
       <ol class="steps">
@@ -143,7 +137,6 @@ const steps = [
       </ol>
     </section>
 
-    <!-- FINAL CTA -->
     <section v-if="!auth.isLoggedIn" class="final-cta">
       <img class="banner-bg" :src="photoUrl('cards', 1600)" :srcset="photoSrcset('cards')" sizes="100vw" alt="" loading="lazy" />
       <div class="final-inner">

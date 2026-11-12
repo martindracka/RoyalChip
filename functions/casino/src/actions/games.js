@@ -67,8 +67,8 @@ const RESOLVERS = {
 
 export async function playGame(db, userId, payload) {
   const { game, profile, stake } = await loadGameForBet(db, userId, payload)
+  if (!Object.hasOwn(RESOLVERS, game.type)) throw badRequest('This game has its own actions') // blackjack
   const resolve = RESOLVERS[game.type]
-  if (!resolve) throw badRequest('This game has its own actions') // blackjack
 
   // 1. validate the choices, 2. take the stake, 3. decide the result, 4. pay out
   const round = resolve(payload)

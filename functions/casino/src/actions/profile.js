@@ -47,21 +47,29 @@ export async function initProfile(db, userId, { referralCode } = {}, user) {
   if (existing) return { profile: existing }
 
   const referredBy = await checkReferrer(db, referralCode, userId)
+  const base = cleanUsername(user?.name)
   const data = {
-    username: await uniqueUsername(db, cleanUsername(user?.name), userId),
     balance: STARTING_BALANCE + (referredBy ? FRIEND_BONUS : 0),
     totalWagered: 0,
     totalWon: 0,
     gamesPlayed: 0,
     referredBy
   }
-  try {
-    // Row ID = user ID, so every account can have exactly one profile.
-    return { profile: await db.create(PROFILES, userId, data, {}) }
-  } catch (error) {
-    if (error.code === 409) return { profile: await db.get(PROFILES, userId) } // created by a parallel request
-    throw error
+
+  // Two attempts: a 409 means either this profile was created by a parallel request,
+  // or another player took the same username a moment ago (unique index).
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const username = await uniqueUsername(db, base, userId)
+      // Row ID = user ID, so every account can have exactly one profile.
+      return { profile: await db.create(PROFILES, userId, { ...data, username }, {}) }
+    } catch (error) {
+      if (error.code !== 409) throw error
+      const created = await db.get(PROFILES, userId)
+      if (created) return { profile: created }
+    }
   }
+  throw conflict('Could not create your profile. Please reload the page.')
 }
 
 export async function renameProfile(db, userId, { username } = {}) {
@@ -70,7 +78,13 @@ export async function renameProfile(db, userId, { username } = {}) {
   const name = username.trim()
   await getProfileOrFail(db, userId)
   if (await isUsernameTaken(db, name, userId)) throw conflict('This username is already taken.')
-  return { profile: await db.update(PROFILES, userId, { username: name }) }
+  try {
+    return { profile: await db.update(PROFILES, userId, { username: name }) }
+  } catch (error) {
+    // the unique index also catches two players renaming to the same name at once
+    if (error.code === 409) throw conflict('This username is already taken.')
+    throw error
+  }
 }
 
 export async function refillBalance(db, userId) {

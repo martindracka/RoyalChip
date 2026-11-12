@@ -28,7 +28,6 @@ export async function callCasino(action, payload = {}) {
   throw error
 }
 
-// Small named helpers keep the components readable.
 export const casino = {
   initProfile: (referralCode) => callCasino('profile.init', { referralCode }),
   rename: (username) => callCasino('profile.rename', { username }),

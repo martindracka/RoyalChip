@@ -5,10 +5,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
 import { useToast } from '@/composables/useToast'
-import { useForm, required, email, minLength, maxLength } from '@/composables/useForm'
+import { useForm, required, email, minLength } from '@/composables/useForm'
 import { toMessage } from '@/lib/errors'
 import { formatChips } from '@/lib/format'
-import { STARTING_BALANCE, FRIEND_BONUS, isValidReferralCode } from '@shared/rules.js'
+import { STARTING_BALANCE, FRIEND_BONUS, isValidReferralCode, validateUsername } from '@shared/rules.js'
 import AuthCard from '@/components/layout/AuthCard.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -30,7 +30,8 @@ const adult = (v) => (!v ? 'You must confirm that you are 18 or older' : '')
 const { values, errors, submitting, handleSubmit, validateField } = useForm(
   { name: '', email: '', password: '', confirm: '', adult: false },
   {
-    name: [required(), minLength(3), maxLength(30)],
+    // same rule as the server, so the player sees the exact username that will be saved
+    name: [required(), validateUsername],
     email: [required(), email()],
     password: [required(), minLength(8)],
     confirm: [required(), sameAsPassword],

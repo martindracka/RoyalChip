@@ -201,6 +201,23 @@ describe('profiles', () => {
     expect(p.username).toMatch(/^alice-\d{4}$/)
   })
 
+  it('gives two players registering with the same name at once different usernames', async () => {
+    const register = (userId) => handle({ db, userId, user: { name: 'Lucky' } }, 'profile.init', {})
+    const [a, b] = await Promise.all([register('p1'), register('p2')])
+    expect(a.profile).toBeTruthy()
+    expect(b.profile).toBeTruthy()
+    expect(a.profile.username).not.toBe(b.profile.username)
+  })
+
+  it('refuses two parallel renames to the same name with a clear message', async () => {
+    const results = await Promise.allSettled([
+      call('alice', 'profile.rename', { username: 'Winner' }),
+      call('carol', 'profile.rename', { username: 'Winner' })
+    ])
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1)
+    expect(results.find((r) => r.status === 'rejected').reason.message).toBe('This username is already taken.')
+  })
+
   it('validates renames and refuses taken names', async () => {
     await expect(call('alice', 'profile.rename', { username: 'x' })).rejects.toThrow('at least')
     await expect(call('alice', 'profile.rename', { username: '<script>' })).rejects.toThrow('Use only')

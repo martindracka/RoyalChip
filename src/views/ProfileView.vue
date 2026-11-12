@@ -91,7 +91,7 @@ async function refill() {
 
       <div class="card">
         <h2>Out of chips?</h2>
-        <p class="muted">When your balance drops below 10 chips you can refill it to {{ formatChips(STARTING_BALANCE) }}.</p>
+        <p class="muted">When your balance drops below {{ REFILL_THRESHOLD }} chips you can refill it to {{ formatChips(STARTING_BALANCE) }}.</p>
         <BaseButton variant="secondary" :disabled="!canRefill" @click="refill">Refill balance</BaseButton>
       </div>
     </div>

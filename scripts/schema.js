@@ -98,7 +98,7 @@ export const TABLES = [
     permissions: [Permission.read(admin), Permission.delete(admin)],
     columns: [
       { type: 'varchar', key: 'userId', size: 36, required: true },
-      { type: 'varchar', key: 'username', size: 30, required: true }, // unique – no impersonation on the leaderboard
+      { type: 'varchar', key: 'username', size: 30, required: true },
       { type: 'varchar', key: 'gameId', size: 36, required: true },
       { type: 'varchar', key: 'gameName', size: 60, required: true },
       { type: 'enum', key: 'gameType', elements: GAME_TYPES, required: true },

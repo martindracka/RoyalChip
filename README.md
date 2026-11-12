@@ -185,7 +185,7 @@ scripts/
 ├── deploy-function.js      # packs and deploys functions/casino
 └── set-role.js             # gives a user the admin / editor label
 tests/                      # Vitest: game rules, UI logic, and attacks against the Function
-docs/                       # security, exam notes, AI usage
+docs/                       # SECURITY.md, AI-USAGE.md
 ```
 
 **Rule of thumb used in the project**

@@ -12,7 +12,6 @@ const route = useRoute()
 const toast = useToast()
 const menuOpen = ref(false)
 
-// close the mobile menu after navigating
 watch(() => route.fullPath, () => (menuOpen.value = false))
 
 async function handleLogout() {

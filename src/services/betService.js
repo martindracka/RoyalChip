@@ -27,7 +27,6 @@ export function deleteBet(id) {
   return deleteRow(T, id)
 }
 
-// Pure function – easy to unit test.
 export function summarizeBets(bets) {
   const wagered = bets.reduce((sum, b) => sum + b.amount, 0)
   const paidOut = bets.reduce((sum, b) => sum + b.payout, 0)

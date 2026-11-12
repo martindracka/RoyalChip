@@ -2,7 +2,6 @@ import { randomInt } from './rng.js'
 
 export const HOUSE_EDGE = 0.01
 
-// Roll a number between 1 and 100
 export function rollDice(rand = randomInt) {
   return rand(100) + 1
 }
