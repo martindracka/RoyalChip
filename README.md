@@ -1,4 +1,4 @@
-# 🎰 Royal Chip Casino
+# Royal Chip Casino
 
 A play-money online casino built with **Vue 3** and **Appwrite**.
 Players register, receive 1,000 virtual chips and play five casino games. Staff manage games,
@@ -6,8 +6,8 @@ promotions and players in a protected administration area.
 
 > No real money is involved. All chips are virtual.
 
-- **Live app:** _add your Appwrite Sites URL here_
-- **Repository:** _add your GitHub URL here_
+- **Live app:** https://royal-chip-casino.appwrite.network
+- **Repository:** https://github.com/martindracka/RoyalChip
 
 ---
 
