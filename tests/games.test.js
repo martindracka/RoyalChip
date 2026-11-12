@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { slotsMultiplier, randomSymbol, SYMBOLS } from '@/games/slots'
-import { rouletteMultiplier, numberColor } from '@/games/roulette'
-import { handValue, settleHands, createDeck, shuffle, playDealer } from '@/games/blackjack'
-import { diceMultiplier, diceWins, winChance } from '@/games/dice'
-import { randomInt } from '@/games/rng'
-import { calcPayout } from '@/games/payout'
+import { slotsMultiplier, randomSymbol, SYMBOLS } from '@shared/games/slots'
+import { rouletteMultiplier, numberColor } from '@shared/games/roulette'
+import { handValue, settleHands, createDeck, shuffle, playDealer } from '@shared/games/blackjack'
+import { diceMultiplier, diceWins, winChance } from '@shared/games/dice'
+import { randomInt } from '@shared/games/rng'
+import { calcPayout } from '@shared/games/payout'
 
 const c = (rank) => ({ rank, suit: '♠' })
 

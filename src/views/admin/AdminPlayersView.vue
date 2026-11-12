@@ -7,6 +7,7 @@ import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
 import { listProfiles, updateProfile, deleteProfile } from '@/services/profileService'
 import { toMessage } from '@/lib/errors'
+import { validateUsername } from '@shared/rules.js'
 import PlayerRow from '@/components/admin/PlayerRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -43,6 +44,8 @@ async function withBusy(id, action, successMessage) {
 }
 
 function save(player, changes) {
+  const nameError = validateUsername(changes.username)
+  if (nameError) return toast.error(nameError)
   withBusy(
     player.$id,
     async () => {

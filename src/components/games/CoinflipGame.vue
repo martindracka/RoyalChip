@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import { useBet } from '@/composables/useBet'
 import { useProfileStore } from '@/stores/profile'
-import { flipCoin, COINFLIP_MULTIPLIER } from '@/games/coinflip'
-import { calcPayout } from '@/games/payout'
+import { COINFLIP_MULTIPLIER } from '@shared/games/coinflip.js'
+import { casino } from '@/services/casinoApi'
 import { sleep } from '@/lib/sleep'
 import BetInput from './BetInput.vue'
 import RoundResult from './RoundResult.vue'
@@ -13,7 +13,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 const props = defineProps({ game: { type: Object, required: true } })
 
 const profileStore = useProfileStore()
-const { amount, stake, busy, inRound, canBet, validationError, lastResult, startRound, settleRound } = useBet(
+const { amount, busy, inRound, canBet, validationError, lastResult, placeBet, finishRound } = useBet(
   () => props.game
 )
 
@@ -21,15 +21,15 @@ const choice = ref('heads')
 const rotation = ref(0)
 
 async function flip() {
-  if (!(await startRound())) return
-  const side = flipCoin()
+  const res = await placeBet((stake) => casino.play(props.game.$id, stake, { choice: choice.value }))
+  if (!res) return
+  const side = res.side
   // heads = front (0°), tails = back (180°); add several full turns for the animation
   const current = rotation.value % 360
   const wanted = side === 'heads' ? 0 : 180
   rotation.value += 360 * 5 + ((wanted - current + 360) % 360)
   await sleep(2000)
-  const payout = side === choice.value ? calcPayout(stake.value, COINFLIP_MULTIPLIER) : 0
-  await settleRound(payout, `Coin landed on ${side} – you picked ${choice.value}`)
+  finishRound(res)
 }
 </script>
 

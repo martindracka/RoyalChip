@@ -2,8 +2,8 @@
 import { ref, computed } from 'vue'
 import { useBet } from '@/composables/useBet'
 import { useProfileStore } from '@/stores/profile'
-import { BET_TYPES, WHEEL_ORDER, numberColor, spinWheel, rouletteMultiplier } from '@/games/roulette'
-import { calcPayout } from '@/games/payout'
+import { BET_TYPES, WHEEL_ORDER, numberColor } from '@shared/games/roulette.js'
+import { casino } from '@/services/casinoApi'
 import { sleep } from '@/lib/sleep'
 import BetInput from './BetInput.vue'
 import RoundResult from './RoundResult.vue'
@@ -12,7 +12,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 const props = defineProps({ game: { type: Object, required: true } })
 
 const profileStore = useProfileStore()
-const { amount, stake, busy, inRound, canBet, validationError, lastResult, startRound, settleRound } = useBet(
+const { amount, busy, inRound, canBet, validationError, lastResult, placeBet, finishRound } = useBet(
   () => props.game
 )
 
@@ -34,8 +34,11 @@ const wheelStyle = computed(() => {
 const pickValid = computed(() => betType.value !== 'straight' || (Number.isInteger(pick.value) && pick.value >= 0 && pick.value <= 36))
 
 async function spin() {
-  if (!pickValid.value || !(await startRound())) return
-  const result = spinWheel()
+  if (!pickValid.value) return
+  const choices = { betType: betType.value, pick: betType.value === 'straight' ? pick.value : null }
+  const res = await placeBet((stake) => casino.play(props.game.$id, stake, choices))
+  if (!res) return
+  const result = res.number
   // Rotate so the winning segment ends under the pointer at the top (+ 5 full turns).
   const index = WHEEL_ORDER.indexOf(result)
   const target = 360 - (index * SEGMENT + SEGMENT / 2)
@@ -44,10 +47,7 @@ async function spin() {
 
   lastNumber.value = result
   history.value = [result, ...history.value].slice(0, 10)
-  const bet = BET_TYPES[betType.value]
-  const payout = calcPayout(stake.value, rouletteMultiplier(betType.value, result, pick.value))
-  const betLabel = betType.value === 'straight' ? `number ${pick.value}` : bet.label
-  await settleRound(payout, `Ball on ${result} (${numberColor(result)}) – bet on ${betLabel}`)
+  finishRound(res)
 }
 </script>
 

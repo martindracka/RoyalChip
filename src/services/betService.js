@@ -1,24 +1,11 @@
-import { ID, Query, Permission, Role } from 'appwrite'
+import { Query } from 'appwrite'
 import { TABLES } from '@/lib/appwrite'
-import { listRows, createRow, deleteRow } from './db'
+import { listRows, deleteRow } from './db'
 
 const T = TABLES.bets
 
-// A bet is an immutable record of one finished round.
-// The player may only READ it – no update/delete permission, so history can't be edited.
-export function recordBet({ userId, username, game, amount, payout, outcome }) {
-  const data = {
-    userId,
-    username,
-    gameId: game.$id,
-    gameName: game.name,
-    gameType: game.type,
-    amount,
-    payout,
-    outcome
-  }
-  return createRow(T, ID.unique(), data, [Permission.read(Role.user(userId))])
-}
+// Bets are written only by the casino Function. The owner may READ them (row permission),
+// admins may delete them, nobody can update them – so the history cannot be edited.
 
 export async function listMyBets(userId, limit = 25) {
   const { rows } = await listRows(T, [

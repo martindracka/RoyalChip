@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "setup:appwrite": "node --env-file=.env scripts/setup-appwrite.js",
-    "set-role": "node --env-file=.env scripts/set-role.js"
+    "set-role": "node --env-file=.env scripts/set-role.js",
+    "deploy:function": "node --env-file=.env scripts/deploy-function.js"
   },
   "dependencies": {
     "appwrite": "^29.2.0",

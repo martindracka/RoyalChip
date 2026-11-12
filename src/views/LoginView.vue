@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useToast } from '@/composables/useToast'
 import { useForm, required, email } from '@/composables/useForm'
 import { toMessage } from '@/lib/errors'
+import { safeRedirect } from '@/lib/redirect'
 import AuthCard from '@/components/layout/AuthCard.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -26,10 +27,7 @@ const submit = () =>
     try {
       await auth.login(email, password)
       toast.success(`Welcome back, ${auth.user.name || 'player'}!`)
-      // Only allow redirects inside the app (prevents open-redirect tricks)
-      const redirect = String(route.query.redirect || '')
-      const isInternal = redirect.startsWith('/') && !redirect.startsWith('//')
-      router.push(isInternal ? redirect : auth.isStaff ? '/admin' : '/games')
+      router.push(safeRedirect(route.query.redirect) || (auth.isStaff ? '/admin' : '/games'))
     } catch (e) {
       formError.value = e.code === 401 ? 'Wrong e-mail or password.' : toMessage(e)
     }

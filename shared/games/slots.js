@@ -1,4 +1,4 @@
-import { randomInt } from './rng'
+import { randomInt } from './rng.js'
 
 // icon = symbol id (rendered as an SVG by SlotSymbol.vue)
 // weight = how often the symbol appears, multiplier = payout for three in a row

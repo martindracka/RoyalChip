@@ -1,4 +1,4 @@
-import { randomInt } from './rng'
+import { randomInt } from './rng.js'
 
 export const COINFLIP_MULTIPLIER = 1.96
 

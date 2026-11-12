@@ -1,7 +1,8 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
-import { createClaim, listMyClaimedIds } from '@/services/claimService'
+import { listMyClaimedIds } from '@/services/claimService'
+import { casino } from '@/services/casinoApi'
 import { toMessage } from '@/lib/errors'
 import { formatChips } from '@/lib/format'
 import { useToast } from './useToast'
@@ -25,12 +26,14 @@ export function usePromotionClaims() {
   async function claim(promotion) {
     claimingId.value = promotion.$id
     try {
-      await createClaim(auth.user.$id, promotion) // fails with 409 if already claimed
-      await profileStore.save({ balance: profileStore.balance + promotion.bonusAmount })
+      // The server checks the dates, takes the amount from the database and refuses a 2nd claim.
+      const res = await casino.claimPromotion(promotion.$id)
+      profileStore.setProfile(res.profile)
       claimedIds.value.push(promotion.$id)
-      toast.success(`${formatChips(promotion.bonusAmount)} bonus chips added!`)
+      toast.success(`${formatChips(res.amount)} bonus chips added!`)
     } catch (e) {
-      toast.error(e.code === 409 ? 'You have already claimed this promotion.' : toMessage(e))
+      if (e.code === 409) claimedIds.value.push(promotion.$id)
+      toast.error(toMessage(e))
     } finally {
       claimingId.value = null
     }

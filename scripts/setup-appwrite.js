@@ -3,6 +3,7 @@
 // It is safe to run several times – things that already exist are skipped.
 import { Client, TablesDB, Storage, ID, Query } from 'node-appwrite'
 import { DATABASE, TABLES, BUCKET, SEED } from './schema.js'
+import { deployFunction } from './deploy-function.js'
 
 const { VITE_APPWRITE_ENDPOINT, VITE_APPWRITE_PROJECT_ID, APPWRITE_API_KEY } = process.env
 
@@ -127,6 +128,11 @@ async function main() {
   console.log('\n🖼  Storage')
   const { id: bucketId, ...bucketOptions } = BUCKET
   await ensure(`bucket ${bucketId}`, () => storage.createBucket({ bucketId, ...bucketOptions, fileSecurity: false }))
+  // keep size/type limits and permissions up to date on an existing bucket
+  await storage.updateBucket({ bucketId, ...bucketOptions, fileSecurity: false })
+
+  console.log('\n⚙  Casino Function (server-side game engine)')
+  await deployFunction(client)
 
   console.log('\n🌱 Demo data')
   await seed('games', SEED.games)

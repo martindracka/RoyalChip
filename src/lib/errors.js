@@ -1,6 +1,8 @@
 // Turns Appwrite / network errors into short messages a user can understand.
 export function toMessage(error) {
   if (!error) return ''
+  // Messages written by our casino Function are already meant for the player.
+  if (error.fromServer) return error.message
   const code = error.code
   if (code === 401) return 'You do not have permission to do this. Please log in with the right account.'
   if (code === 404) return 'The requested item was not found.'

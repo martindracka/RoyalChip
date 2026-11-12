@@ -1,10 +1,7 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { useBet } from '@/composables/useBet'
+import { computed } from 'vue'
+import { useBlackjack } from '@/composables/useBlackjack'
 import { useProfileStore } from '@/stores/profile'
-import { createDeck, shuffle, handValue, isBlackjack, isBust, playDealer, settleHands } from '@/games/blackjack'
-import { calcPayout } from '@/games/payout'
-import { sleep } from '@/lib/sleep'
 import BetInput from './BetInput.vue'
 import RoundResult from './RoundResult.vue'
 import PlayingCard from './PlayingCard.vue'
@@ -13,63 +10,30 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 const props = defineProps({ game: { type: Object, required: true } })
 
 const profileStore = useProfileStore()
-const { amount, stake, busy, inRound, canBet, validationError, lastResult, startRound, settleRound } = useBet(
+const { amount, round, busy, inRound, lastResult, validationError, canDeal, canAct, deal, hit, stand } = useBlackjack(
   () => props.game
 )
 
-const deck = ref([])
-const player = ref([])
-const dealer = ref([])
-const revealDealer = ref(false)
-
-const playerTotal = computed(() => handValue(player.value))
-const dealerTotal = computed(() => (revealDealer.value ? handValue(dealer.value) : handValue(dealer.value.slice(0, 1))))
-const canAct = computed(() => inRound.value && !busy.value && !revealDealer.value)
-
-const draw = () => deck.value.pop()
-
-async function deal() {
-  if (!(await startRound())) return
-  revealDealer.value = false
-  deck.value = shuffle(createDeck())
-  player.value = [draw(), draw()]
-  dealer.value = [draw(), draw()]
-  if (isBlackjack(player.value)) await finish()
-}
-
-async function hit() {
-  player.value.push(draw())
-  if (isBust(player.value)) await finish()
-}
-
-async function finish() {
-  revealDealer.value = true
-  // The dealer only draws when the player is still in the game
-  if (!isBust(player.value) && !isBlackjack(player.value)) {
-    await sleep(500)
-    const result = playDealer(dealer.value, deck.value)
-    dealer.value = result.dealer
-    deck.value = result.deck
-  }
-  await sleep(400)
-  const { result, multiplier } = settleHands(player.value, dealer.value)
-  const payout = calcPayout(stake.value, multiplier)
-  await settleRound(payout, `${result.toUpperCase()} – you ${playerTotal.value}, dealer ${handValue(dealer.value)}`)
-}
+const player = computed(() => round.value?.player ?? [])
+// While playing, the server sends only the first dealer card – we draw a face-down card next to it.
+const dealer = computed(() => {
+  const cards = round.value?.dealer ?? []
+  return round.value?.dealerHidden ? [...cards, null] : cards
+})
 </script>
 
 <template>
   <div class="game-layout">
     <section class="game-stage felt" aria-label="Blackjack table">
       <div class="hand">
-        <h3>Dealer <span v-if="dealer.length" class="total">{{ dealerTotal }}</span></h3>
+        <h3>Dealer <span v-if="dealer.length" class="total">{{ round.dealerTotal }}</span></h3>
         <div class="cards">
-          <PlayingCard v-for="(card, i) in dealer" :key="i" :card="card" :hidden="i === 1 && !revealDealer" />
+          <PlayingCard v-for="(card, i) in dealer" :key="i" :card="card" :hidden="card === null" />
           <p v-if="!dealer.length" class="muted">Place a bet and press Deal</p>
         </div>
       </div>
       <div class="hand">
-        <h3>You <span v-if="player.length" class="total">{{ playerTotal }}</span></h3>
+        <h3>You <span v-if="player.length" class="total">{{ round.playerTotal }}</span></h3>
         <div class="cards">
           <PlayingCard v-for="(card, i) in player" :key="i" :card="card" />
         </div>
@@ -86,10 +50,10 @@ async function finish() {
         :disabled="inRound || busy"
         :error="validationError"
       />
-      <BaseButton v-if="!inRound" size="lg" :disabled="!canBet" :loading="busy" @click="deal">Deal</BaseButton>
+      <BaseButton v-if="!inRound" size="lg" :disabled="!canDeal" :loading="busy" @click="deal">Deal</BaseButton>
       <div v-else class="actions">
         <BaseButton size="lg" :disabled="!canAct" @click="hit">Hit</BaseButton>
-        <BaseButton size="lg" variant="secondary" :disabled="!canAct" @click="finish">Stand</BaseButton>
+        <BaseButton size="lg" variant="secondary" :disabled="!canAct" @click="stand">Stand</BaseButton>
       </div>
       <p class="muted rules">
         Blackjack pays 3:2, a win pays 1:1, a tie returns your bet. Dealer stands on 17.

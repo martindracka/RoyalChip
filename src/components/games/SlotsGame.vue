@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import { useBet } from '@/composables/useBet'
 import { useProfileStore } from '@/stores/profile'
-import { SYMBOLS, spinReels, randomSymbol, slotsMultiplier } from '@/games/slots'
-import { calcPayout } from '@/games/payout'
+import { SYMBOLS, randomSymbol } from '@shared/games/slots.js'
+import { casino } from '@/services/casinoApi'
 import BetInput from './BetInput.vue'
 import SlotSymbol from './SlotSymbol.vue'
 import RoundResult from './RoundResult.vue'
@@ -12,7 +12,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 const props = defineProps({ game: { type: Object, required: true } })
 
 const profileStore = useProfileStore()
-const { amount, stake, busy, inRound, canBet, validationError, lastResult, startRound, settleRound } = useBet(
+const { amount, busy, inRound, canBet, validationError, lastResult, placeBet, finishRound } = useBet(
   () => props.game
 )
 
@@ -34,11 +34,11 @@ function animateReel(index, finalSymbol, duration) {
 }
 
 async function spin() {
-  if (!(await startRound())) return
-  const result = spinReels() // the result is decided BEFORE the animation
-  await Promise.all(result.map((symbol, i) => animateReel(i, symbol, 700 + i * 350)))
-  const payout = calcPayout(stake.value, slotsMultiplier(result))
-  await settleRound(payout, result.join(' '))
+  // The server spins the reels and pays out; we only animate towards its result.
+  const res = await placeBet((stake) => casino.play(props.game.$id, stake))
+  if (!res) return
+  await Promise.all(res.reels.map((symbol, i) => animateReel(i, symbol, 700 + i * 350)))
+  finishRound(res)
 }
 </script>
 

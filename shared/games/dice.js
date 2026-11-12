@@ -1,4 +1,4 @@
-import { randomInt } from './rng'
+import { randomInt } from './rng.js'
 
 export const HOUSE_EDGE = 0.01
 

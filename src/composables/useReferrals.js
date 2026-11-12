@@ -2,7 +2,8 @@ import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
 import { listReferredFriends } from '@/services/profileService'
-import { createReferralReward, listMyRewardedIds } from '@/services/referralService'
+import { listMyRewardedIds } from '@/services/referralService'
+import { casino } from '@/services/casinoApi'
 import { REFERRAL_REWARD, referralProgress } from '@/lib/referral'
 import { toMessage } from '@/lib/errors'
 import { formatChips } from '@/lib/format'
@@ -48,12 +49,13 @@ export function useReferrals() {
   async function claim(friend) {
     claimingId.value = friend.$id
     try {
-      await createReferralReward(auth.user.$id, friend) // 409 if this friend was already rewarded
-      await profileStore.save({ balance: profileStore.balance + REFERRAL_REWARD })
+      // The server checks that the friend really joined through my link and wagered enough.
+      const res = await casino.claimReferral(friend.$id)
+      profileStore.setProfile(res.profile)
       rewardedIds.value = [...rewardedIds.value, friend.$id]
-      toast.success(`${formatChips(REFERRAL_REWARD)} chips added for inviting ${friend.username}!`)
+      toast.success(`${formatChips(res.amount)} chips added for inviting ${friend.username}!`)
     } catch (e) {
-      toast.error(e.code === 409 ? 'You already got the reward for this friend.' : toMessage(e))
+      toast.error(toMessage(e))
     } finally {
       claimingId.value = null
     }

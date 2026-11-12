@@ -7,7 +7,7 @@ import { useAsync } from '@/composables/useAsync'
 import { useToast } from '@/composables/useToast'
 import { useForm, required, minLength, maxLength } from '@/composables/useForm'
 import { listMyBets } from '@/services/betService'
-import { STARTING_BALANCE } from '@/services/profileService'
+import { STARTING_BALANCE, REFILL_THRESHOLD, USERNAME_MIN, USERNAME_MAX, validateUsername } from '@shared/rules.js'
 import { formatChips } from '@/lib/format'
 import { toMessage } from '@/lib/errors'
 import StatCard from '@/components/ui/StatCard.vue'
@@ -28,16 +28,16 @@ const bets = useAsync(() => listMyBets(auth.user.$id), { initialData: [] })
 
 const { values, errors, submitting, handleSubmit, validateField } = useForm(
   { username: profile.value?.username ?? '' },
-  { username: [required(), minLength(3), maxLength(30)] }
+  { username: [required(), minLength(USERNAME_MIN), maxLength(USERNAME_MAX), validateUsername] }
 )
 
 const net = computed(() => (profile.value ? profile.value.totalWon - profile.value.totalWagered : 0))
-const canRefill = computed(() => profileStore.balance < 10)
+const canRefill = computed(() => profileStore.balance < REFILL_THRESHOLD)
 
 const saveUsername = () =>
   handleSubmit(async ({ username }) => {
     try {
-      await profileStore.save({ username: username.trim() })
+      await profileStore.rename(username.trim())
       toast.success('Username updated.')
     } catch (e) {
       toast.error(toMessage(e))
@@ -46,7 +46,7 @@ const saveUsername = () =>
 
 async function refill() {
   try {
-    await profileStore.save({ balance: STARTING_BALANCE })
+    await profileStore.refill()
     toast.success(`Your balance was refilled to ${formatChips(STARTING_BALANCE)} chips.`)
   } catch (e) {
     toast.error(toMessage(e))

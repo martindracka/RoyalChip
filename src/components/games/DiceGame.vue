@@ -2,8 +2,8 @@
 import { ref, computed } from 'vue'
 import { useBet } from '@/composables/useBet'
 import { useProfileStore } from '@/stores/profile'
-import { rollDice, winChance, diceMultiplier, diceWins } from '@/games/dice'
-import { calcPayout } from '@/games/payout'
+import { winChance, diceMultiplier } from '@shared/games/dice.js'
+import { casino } from '@/services/casinoApi'
 import BetInput from './BetInput.vue'
 import RoundResult from './RoundResult.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -11,7 +11,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 const props = defineProps({ game: { type: Object, required: true } })
 
 const profileStore = useProfileStore()
-const { amount, stake, busy, inRound, canBet, validationError, lastResult, startRound, settleRound } = useBet(
+const { amount, busy, inRound, canBet, validationError, lastResult, placeBet, finishRound } = useBet(
   () => props.game
 )
 
@@ -39,13 +39,13 @@ function animateRoll(finalValue) {
 }
 
 async function roll() {
-  if (!(await startRound())) return
   won.value = null
-  const value = rollDice()
-  await animateRoll(value)
-  won.value = diceWins(value, target.value, direction.value)
-  const payout = won.value ? calcPayout(stake.value, multiplier.value) : 0
-  await settleRound(payout, `Rolled ${value} – needed ${direction.value} ${target.value}`)
+  const choices = { target: target.value, direction: direction.value }
+  const res = await placeBet((stake) => casino.play(props.game.$id, stake, choices))
+  if (!res) return
+  await animateRoll(res.roll)
+  won.value = res.won
+  finishRound(res)
 }
 </script>
 

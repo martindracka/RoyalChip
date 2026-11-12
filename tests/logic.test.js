@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateStake } from '@/composables/useBet'
+import { validateStake } from '@shared/rules.js'
 import { summarizeBets } from '@/services/betService'
 import { getRole, can } from '@/lib/roles'
 import { required, email, minValue } from '@/composables/useForm'
@@ -71,4 +71,18 @@ describe('referral programme', () => {
     expect(isValidReferralCode('a'.repeat(37))).toBe(false)
     expect(isValidReferralCode(['array'])).toBe(false)
   })
+})
+
+import { safeRedirect } from '@/lib/redirect'
+
+describe('login redirect', () => {
+  it('allows paths inside the app', () => {
+    expect(safeRedirect('/admin/games')).toBe('/admin/games')
+  })
+  it.each(['//evil.com', '/\\evil.com', 'https://evil.com', '/\t/evil.com', undefined, ['/admin']])(
+    'refuses %o',
+    (value) => {
+      expect(safeRedirect(value)).toBe('')
+    }
+  )
 })

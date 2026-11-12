@@ -1,4 +1,4 @@
-import { randomInt } from './rng'
+import { randomInt } from './rng.js'
 
 // European roulette: 0–36
 export const RED_NUMBERS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]

@@ -68,18 +68,13 @@ export const TABLES = [
   {
     id: 'profiles',
     name: 'Player profiles',
-    // Row security ON: the row itself says who may update it (the owner).
-    // Table level: any logged-in user can create their profile and read profiles (leaderboard),
-    // admins can update/delete every profile.
-    rowSecurity: true,
-    permissions: [
-      Permission.create(Role.users()),
-      Permission.read(Role.users()),
-      Permission.update(admin),
-      Permission.delete(admin)
-    ],
+    // Logged-in users may only READ profiles (leaderboard, invite page). Players can NOT create
+    // or update profiles – balances change only inside the casino Function (server API key).
+    // Row security is OFF, so old row-level permissions are ignored. Admins manage players.
+    rowSecurity: false,
+    permissions: [Permission.read(Role.users()), Permission.update(admin), Permission.delete(admin)],
     columns: [
-      { type: 'varchar', key: 'username', size: 30, required: true },
+      { type: 'varchar', key: 'username', size: 30, required: true }, // unique – no impersonation on the leaderboard
       // min: 0 -> the database itself refuses a negative balance
       { type: 'integer', key: 'balance', required: true, min: 0 },
       { type: 'integer', key: 'totalWagered', required: false, min: 0, xdefault: 0 },
@@ -89,7 +84,7 @@ export const TABLES = [
       { type: 'varchar', key: 'referredBy', size: 36, required: false }
     ],
     indexes: [
-      { key: 'username_idx', type: 'key', columns: ['username'] },
+      { key: 'username_unique', type: 'unique', columns: ['username'] },
       { key: 'won_idx', type: 'key', columns: ['totalWon'] },
       { key: 'referred_by_idx', type: 'key', columns: ['referredBy'] }
     ]
@@ -97,13 +92,13 @@ export const TABLES = [
   {
     id: 'bets',
     name: 'Bets',
-    // Players can create bets and read only their own (row permission). Nobody but admins
-    // can delete, and nobody can update -> the history cannot be edited.
+    // Only the casino Function creates bets. The owner gets a row-level READ permission;
+    // admins read all and may delete. Nobody can update -> the history cannot be edited.
     rowSecurity: true,
-    permissions: [Permission.create(Role.users()), Permission.read(admin), Permission.delete(admin)],
+    permissions: [Permission.read(admin), Permission.delete(admin)],
     columns: [
       { type: 'varchar', key: 'userId', size: 36, required: true },
-      { type: 'varchar', key: 'username', size: 30, required: true },
+      { type: 'varchar', key: 'username', size: 30, required: true }, // unique – no impersonation on the leaderboard
       { type: 'varchar', key: 'gameId', size: 36, required: true },
       { type: 'varchar', key: 'gameName', size: 60, required: true },
       { type: 'enum', key: 'gameType', elements: GAME_TYPES, required: true },
@@ -120,8 +115,9 @@ export const TABLES = [
   {
     id: 'claims',
     name: 'Promotion claims',
+    // Created only by the casino Function. The owner can read their own claims (row permission).
     rowSecurity: true,
-    permissions: [Permission.create(Role.users()), Permission.read(admin), Permission.delete(admin)],
+    permissions: [Permission.read(admin), Permission.delete(admin)],
     columns: [
       { type: 'varchar', key: 'userId', size: 36, required: true },
       { type: 'varchar', key: 'promotionId', size: 36, required: true },
@@ -136,9 +132,9 @@ export const TABLES = [
   {
     id: 'referralRewards',
     name: 'Referral rewards',
-    // Created by the inviter when a friend has wagered enough. Same idea as claims.
+    // Created only by the casino Function after it checked the friend's progress.
     rowSecurity: true,
-    permissions: [Permission.create(Role.users()), Permission.read(admin), Permission.delete(admin)],
+    permissions: [Permission.read(admin), Permission.delete(admin)],
     columns: [
       { type: 'varchar', key: 'userId', size: 36, required: true }, // the inviter
       { type: 'varchar', key: 'referredId', size: 36, required: true }, // the friend
@@ -150,8 +146,42 @@ export const TABLES = [
       { key: 'referred_unique', type: 'unique', columns: ['referredId'] },
       { key: 'user_idx', type: 'key', columns: ['userId'] }
     ]
+  },
+  {
+    id: 'blackjackRounds',
+    name: 'Blackjack rounds',
+    // The running hand of each player (row ID = user ID), including the shuffled deck.
+    // NO permissions at all: only the casino Function can read it, so nobody can peek at the deck.
+    rowSecurity: false,
+    permissions: [],
+    columns: [
+      { type: 'varchar', key: 'gameId', size: 36, required: true },
+      { type: 'integer', key: 'stake', required: true, min: 1 },
+      { type: 'enum', key: 'status', elements: ['playing', 'finished'], required: true },
+      // 1 while the hand is running. Closed with an atomic decrement, so a hand can be paid only once.
+      { type: 'integer', key: 'open', required: false, min: 0, max: 1, xdefault: 0 },
+      { type: 'varchar', key: 'result', size: 20, required: false },
+      { type: 'integer', key: 'payout', required: false, min: 0, xdefault: 0 },
+      { type: 'text', key: 'deck', required: true },
+      { type: 'text', key: 'player', required: true },
+      { type: 'text', key: 'dealer', required: true }
+    ],
+    indexes: []
   }
 ]
+
+// The server-side game engine (functions/casino). Only logged-in users may execute it.
+// Its automatic per-execution API key gets only these scopes.
+export const FUNCTION = {
+  id: 'casino',
+  name: 'Casino engine',
+  runtime: 'node-22',
+  execute: [Role.users()],
+  scopes: ['rows.read', 'rows.write', 'users.read'],
+  entrypoint: 'functions/casino/src/main.js',
+  commands: 'npm install --omit=dev',
+  timeout: 15
+}
 
 export const BUCKET = {
   id: 'game-images',

@@ -1,0 +1,10 @@
+{
+  "name": "royal-chip-casino-function",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "functions/casino/src/main.js",
+  "dependencies": {
+    "node-appwrite": "^31.1.0"
+  }
+}
